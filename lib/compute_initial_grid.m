@@ -14,27 +14,10 @@ function grid = compute_initial_grid( plate, varargin )
         estimate_dimensions( plate, win ) );
     dims = params.dimensions;
     
-    params = default_param( params, 'threshold', ...
-        estimate_intensity_threshold( plate ) );
-    it = params.threshold;
-    
     grid.win = win;
-    grid.thresh = it;
     grid.dims = dims;
     
-    %% Identify the grid margins
-%     marg = find_margins(plate > it);
-%     marg = marg + [win/2 -win/2 win/2 -win/2];
-    
-%     tmp = [size(plate); fliplr(size(plate))] \ params.sizestandard';
-%     x = dims(2) * win;
-%     y = dims(1) * win;
-%     tmp2 = [ y x; x y ] * tmp;
-% 
-%     tmp3 = (size(plate) - tmp2')/2;
-%     tmp4 = size(plate) - tmp3;
-%     marg = [tmp3(1) tmp4(1) tmp3(2) tmp4(2)];
-
+    %% Identify the grid orientation
     tang = 1853/2765;
     ratiofun = @(xp, yp) atan( -(yp - xp*tang)./(yp*tang-xp) );
     [yp xp] = size(plate);
@@ -53,9 +36,5 @@ function grid = compute_initial_grid( plate, varargin )
     
     %% Compute initial grid estimate
     grid = determine_grid_from_corners( coords, grid );
-%     [grid.c, grid.r] = meshgrid ...
-%         ( linspace( marg(3), marg(4), dims(2) ), ...
-%         linspace( marg(1), marg(2), dims(1) ) );
-%     
     
 end

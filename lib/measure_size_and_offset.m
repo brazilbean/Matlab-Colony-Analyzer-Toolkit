@@ -3,13 +3,14 @@
 %
 % Box should be intensity data
 
-function [sz, offset] = measure_size_and_offset( box, thresh, varargin )
+function [sz, offset] = measure_size_and_offset( box, varargin )
     params = get_params( varargin{:} );
     params = default_param( params, 'emptyThresh', 20 );
 
     win = (size(box,1)-1)/2;
     
-    thresh = max_min_mean(box);
+    %% Measure size
+    thresh = get_temp_thresh(box);
     bbox = imclearborder(box > thresh);
     
     stats = regionprops( bbox, 'area','centroid' );
@@ -33,4 +34,22 @@ function [sz, offset] = measure_size_and_offset( box, thresh, varargin )
         offset = cents(ci,:);
     end
 
+    %% Sub routines
+    function it = get_temp_thresh( box )
+        m = round(size(box)/2);
+        mm = round( size(box)/4 );
+
+        mid = false(size(box));
+        mid(m-mm:m+mm,m-mm:m+mm) = true;
+
+        %     it = ( prctile( box(:), 99.9 ) + parzen_mode(box(:)) ) / 2;
+        %     it = ( max( box(:) ) + min( box(:) ) ) / 2;
+        it = ( max( box(:) ) + median( box(~mid) ) ) / 2;
+
+        if ( sum(box(mid)>it) / sum(mid(:)) ...
+                < sum(box(~mid)>it) / sum(~mid(:)))
+            % Empty spot
+            it = max(box(:));
+        end
+    end
 end

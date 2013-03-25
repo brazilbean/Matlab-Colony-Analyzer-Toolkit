@@ -33,8 +33,6 @@ function grid = adjust_grid( plate, grid, varargin )
     if (params.finaladjust)
         rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
         ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
-%         rrr = round( linspace( 1, grid.dims(1), grid.dims(1)/2 ) );
-%         ccc = round( linspace( 1, grid.dims(2), grid.dims(2)/2 ) );
 
         grid = minor_adjust_grid( plate, grid, rrr, ccc );
     end
@@ -50,14 +48,13 @@ function grid = adjust_grid( plate, grid, varargin )
         grid0 = grid;
         dims = grid.dims;
         win = grid.win;
-        it = grid.thresh;
         
         [rtmp ctmp] = deal( nan(size(grid.r)) );
 
         for rr = rrr(:)'
             for cc = ccc(:)'
                 [rtmp(rr,cc) ctmp(rr,cc) ] = adjust_spot ...
-                    (plate, grid.r(rr,cc), grid.c(rr,cc), win, it);
+                    (plate, grid.r(rr,cc), grid.c(rr,cc), win);
             end
         end
 
@@ -65,12 +62,9 @@ function grid = adjust_grid( plate, grid, varargin )
         iii = in(~isnan(rtmp) & ~isnan(ctmp));
         [cc, rr] = meshgrid( 1 : dims(2), 1 : dims(1) );
         Afun = params.fitfunction;
-%         Afun = @(r,c) [ones(numel(r),1) r(:) c(:)];
         
         rfact = Afun(rr(iii),cc(iii)) \ rtmp(iii);
         cfact = Afun(rr(iii),cc(iii)) \ ctmp(iii);
-%         rfact = [ones(sum(iii),1) rr(iii) cc(iii)] \ rtmp(iii);
-%         cfact = [ones(sum(iii),1) rr(iii) cc(iii)] \ ctmp(iii);
 
         grid.factors.row = rfact;
         grid.factors.col = cfact;
@@ -85,10 +79,10 @@ function grid = adjust_grid( plate, grid, varargin )
         
     end
     
-    function [rpos cpos] = adjust_spot( plate, rpos, cpos, win, it )
+    function [rpos cpos] = adjust_spot( plate, rpos, cpos, win )
         
         box = get_box( plate, rpos, cpos, win );
-        [~, off] = measure_size_and_offset( box, it );
+        [~, off] = measure_size_and_offset( box );
         off = round(off);
         
         if (any(off > win/2))

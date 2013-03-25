@@ -16,9 +16,6 @@ function grid = manual_grid( plate, varargin )
     else
         grid.dims = params.dimensions;
     end
-    params = default_param( params, 'threshold', ...
-        estimate_intensity_threshold( plate ) );
-    grid.thresh = params.threshold;
     
     success = false;
     while (~success)
