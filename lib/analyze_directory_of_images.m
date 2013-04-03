@@ -8,7 +8,7 @@ function analyze_directory_of_images( imagedir, varargin )
     params = default_param( params, 'parallel', false );
     
     %% Get Image Files
-    files = dirfiles( imagedir, ['*' params.extension] );
+    files = dirfiles( imagedir, ['*' params.extension], false );
     
     %% Scan each file
     if (params.parallel)

@@ -4,7 +4,7 @@
 function info = load_directory_qc_info( imagedir )
 
     %% Load .info.mat files
-    matfiles = dirfiles( imagedir, '*.info.mat' );
+    matfiles = dirfiles( imagedir, '*.info.mat', false );
     n = length(matfiles);
     
     %% Load files
@@ -24,7 +24,7 @@ function info = load_directory_qc_info( imagedir )
     for ii = 1 : n
         info.rotation(ii) = grids{ii}.info.theta;
     end
-
+    
     %% Extract threshold information
     info.thresh = nan(grids{1}.dims(1),grids{1}.dims(2),n);
     for ii = 1 : n

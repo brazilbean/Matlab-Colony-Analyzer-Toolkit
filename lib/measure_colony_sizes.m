@@ -10,7 +10,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     params = default_param( params, 'manualGrid', false );
     
     params = default_param( params, 'thresholdMethod', local_fitted() );
-    params = default_param( params, 'localThreshold', false );
+    params = default_param( params, 'localThreshold', true );
     
     params = default_param( params, 'sizeFunction', ...
         @threshold_bounded );

@@ -21,14 +21,7 @@ function params = view_plate_image( filename, varargin )
     if (iscell(filename))
         filename = filename{1};
     end
-    if (~isfield(params, 'title'))
-        if (ischar( filename ) )
-            tmp = textscan(filename, '%s', 'delimiter', '/');
-            params.title = tmp{1}{end};
-        else
-            params.title = [];
-        end
-    end
+    
     
     %% Load image and image info
     if (ischar(filename))
@@ -56,6 +49,15 @@ function params = view_plate_image( filename, varargin )
         end
     end
     params.grid = grid;
+    
+    if (~isfield(params, 'title'))
+        if (ischar( filename ) )
+            tmp = textscan(filename, '%s', 'delimiter', '/');
+            params.title = tmp{1}{end};
+        else
+            params.title = [];
+        end
+    end
     
     %% Show image
     dims = grid.dims;

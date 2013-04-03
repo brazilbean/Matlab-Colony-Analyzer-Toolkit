@@ -144,6 +144,10 @@ function [corrected corrections params] = ...
                 [plate2 corrections.spatial] = ...
                     localweightedsurface( plate2 );
                 
+            case 'borderspatial'
+                [plate2 corrections.spatial] = ...
+                    median_borderspatial_correction( plate2 );
+                
             case 'none'
                 % Yep. None.
 
@@ -526,19 +530,59 @@ function [corrected corrections params] = ...
 
     %% Function - Median Border Correction
     function [plate border] = median_border_correction( platedata )
+        params = default_param( params, 'borderWindow', 5 );
+        w = params.borderwindow;
+        
+        plate = reshape(platedata, params.platedim);
+        
+        mask = false(size(plate));
+        mask([1:w end-w+1:end], :) = true;
+        mask(:, [1:w end-w+1:end]) = true;
+
         % Correction
-        plate = platedata(:);
-        pmed = nanmedian( plate(noborder) );
-
+        pmed = nanmedian( plate(~mask) );
+        
         % Border Correct
-        plate2d = reshape(plate, params.platedim);
-        rmeds = nanmedian(plate2d,2) ./ pmed;
-        cmeds = nanmedian(plate2d,1) ./ pmed;
+        rmeds = nanmedian(plate,2);
+        cmeds = nanmedian(plate,1);
+        
+        border = bsxfun(@max, rmeds, cmeds) ./ pmed;
+%         border(~mask) = 1;
+        
+        plate = plate ./ border;
+        
+        border = reshape( border, size(platedata) );
+        plate = reshape( plate, size(platedata));
 
-        meds = bsxfun(@max, rmeds, cmeds);
+    end
 
-        border = reshape( meds(:), size(platedata) );
-        plate = reshape( plate ./ meds(:), size(platedata));
+    %% Function - Median Border/Spatial Correction
+    function [plate border] = median_borderspatial_correction( platedata )
+        params = default_param( params, 'borderWindow', 5 );
+        w = params.borderwindow;
+        
+        plate = reshape(platedata, params.platedim);
+        
+        mask = false(size(plate));
+        mask([1:w end-w+1:end], :) = true;
+        mask(:, [1:w end-w+1:end]) = true;
+
+        % Correction
+        pmed = nanmedian( plate(~mask) );
+        [~,spatial] = medianwindow( platedata );
+        spatial = reshape(spatial, size(plate));
+        
+        % Border/Spatial Correct
+        rmeds = nanmedian(plate,2);
+        cmeds = nanmedian(plate,1);
+        
+        border = bsxfun(@max, rmeds, cmeds);
+        border(~mask) = spatial(~mask);
+        
+        plate = plate ./ border * pmed;
+        
+        border = reshape( border, size(platedata) );
+        plate = reshape( plate, size(platedata));
 
     end
 

@@ -21,6 +21,7 @@ function [cs files] = load_colony_sizes( filename )
     end
     
     function cs = load_file( filename )
+        filename = get_cs_txt_file( filename );
         tmp = filescan( filename, '%f %f %f', 'headerlines', 1);
 
         % Get row and column subscripts
@@ -35,5 +36,15 @@ function [cs files] = load_colony_sizes( filename )
         % Copy colony sizes
         ii = sub2ind( [nr nc], rr, cc );
         cs(ii) = tmp{3};
+    end
+
+    function file = get_cs_txt_file( file )
+        if (length(file) > 7 && strcmp(file(end-6:end),'.cs.txt'))
+            return;
+        elseif (length(file) > 4 && strcmpi(file(end-3:end),'.JPG'))
+            file = [file '.cs.txt'];
+        elseif (length(file) > 9 && strcmp(file(end-9:end),'.info.mat'))
+            file = [file(1:end-9) '.cs.txt'];
+        end
     end
 end
