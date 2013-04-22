@@ -5,7 +5,7 @@ function grid = determine_colony_grid( plate, varargin )
     params = get_params( varargin{:} );
     
     %% Compute Grid
-    if (isfield(params, 'initialGrid'))
+    if (isfield(params, 'initialgrid'))
         grid = params.initialgrid;
     else
         grid = compute_initial_grid( plate, varargin{:} );
