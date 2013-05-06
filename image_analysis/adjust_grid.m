@@ -17,7 +17,8 @@ function grid = adjust_grid( plate, grid, varargin )
     params = default_param( params, 'fitfunction', ...
         @(r,c) [ones(numel(r),1) r(:) c(:)] );
     
-    while (fitfact > params.convergethresh)
+%     while (fitfact > params.convergethresh)
+    for iter = 1
         grid.info.iterations = grid.info.iterations + 1;
         
         %% Adjust internal spots

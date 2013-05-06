@@ -18,7 +18,7 @@ function grid = compute_initial_grid( plate, varargin )
     grid.dims = dims;
     
     %% Identify the grid orientation
-    tang = 1853/2765;
+    tang = params.sizestandard(1) / params.sizestandard(2);
     ratiofun = @(xp, yp) atan( -(yp - xp*tang)./(yp*tang-xp) );
     [yp xp] = size(plate);
 
