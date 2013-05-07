@@ -25,19 +25,14 @@ function params = view_plate_image( filename, varargin )
     
     %% Load image and image info
     if (ischar(filename))
+        % Fix filename
         if (strcmpi(filename(end-3:end), '.mat'))
             filename = filename(1:end-9);
         elseif (strcmpi(filename(end-6:end),'.cs.txt'))
             filename = filename(1:end-7);
         end
-%         plate = crop_background( nanmean( imread( filename ), 3) );
-        if (strcmpi(filename(end-3:end),'png'))
-            % Assume it was raw, use green channel
-            plate = load_plate( filename, 'channel', 2);
-        else
-            plate = load_plate( filename );
-        end
-
+        
+        % Load grid
         infofile = [filename '.info.mat'];
         
         if (~isfield( params, 'grid' ))
@@ -45,15 +40,36 @@ function params = view_plate_image( filename, varargin )
         else
             grid = params.grid;
         end
+        
+        % Load plate
+        if isfield(params, 'plateloader')
+            plate = params.plateloader.load(filename);
+        else
+            if isfield(grid.info, 'PlateLoader')
+                plate = grid.info.PlateLoader.load(filename);
+            else
+                if (strcmpi(filename(end-3:end),'png'))
+                    warning('Guessing plate is in raw format');
+                    pl = PlateLoader('channel', 2);
+                else
+                    warning('Guessing plate is .JPG');
+                    pl = PlateLoader();
+                end
+                plate = pl.load(filename);
+            end
+        end
+        
     else
         plate = filename;
         
+        % Load grid
         if (~isfield(params, 'grid'))
             grid = determine_colony_grid(plate, varargin{:});
         else
             grid = params.grid;
         end
     end
+    
     params.grid = grid;
     
     if (~isfield(params, 'title'))

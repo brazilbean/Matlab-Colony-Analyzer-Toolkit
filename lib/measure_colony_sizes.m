@@ -17,16 +17,19 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     %% Load Plate
     if (ischar( plate ))
         % plate is file name
-        plate = load_plate(plate, varargin{:});
+        plateLoader = PlateLoader(varargin{:});
+        plate = plateLoader.load(plate);
+        
+    else
+        % Crop plate
+        if (size(plate,3) > 1)
+            % Plate is assumed to be in RGB format
+            warning('Assumptions were made concerning the plate format');
+            plate = nanmean(plate,3);
+            plate = crop_background( plate );
+        end
     end
     
-    %% Crop plate
-    if (size(plate,3) > 1)
-        % Plate is assumed to be in RGB format
-        plate = nanmean(plate,3);
-        plate = crop_background( plate );
-    end
-
     %% Determine grid
     if (params.manualgrid)
         % Manual Grid
@@ -45,6 +48,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     end
     
     grid = params.grid;
+    grid.info.PlateLoader = plateLoader;
     
     %% Intensity Thresholds
     if (~isfield(grid, 'thresh'))

@@ -6,24 +6,18 @@ function [plate, grid] = load_plate( filename, varargin )
         'channel', 1:3, ... % Red, Green, Blue
         'rotate', true ); 
     
-    img = imread(filename);
-    if isa(img, 'uint16')
-        img = single(img);
-    end
-    
-    % Average across channels
-    img = mean(img(:,:,params.channel),3);
-    
-    % Rotate if img is in portrait mode
-    if params.rotate && size(img,1) > size(img,2)
-        img = rot90(img); % Rotate
-    end
-    
-    % Crop background
-    plate = crop_background(img);
-    
-    % Load grid if requested
-    if (nargout > 1)
+    % Look for grid information to load the image
+    if exist([filename '.info.mat'],'file')
         grid = load([filename '.info.mat']);
+        
+        if isfield(grid, 'info') && isfield(grid.info, 'PlateLoader')
+            plate = grid.info.PlateLoader.load(filename);
+            return
+        end
     end
+    
+    % Otherwise, create a PlateLoader
+    pl = PlateLoader(varargin{:});
+    plate = pl.load(filename);
+    
 end
