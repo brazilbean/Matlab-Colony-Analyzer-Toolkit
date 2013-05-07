@@ -4,13 +4,10 @@
 function grid = adjust_grid( plate, grid, varargin )
     params = get_params( varargin{:} );
     
-    fitfact = grid.win;
-    grid.info.iterations = 0;
-    
     params = default_param( params, 'convergethresh', 3 );
     params = default_param( params, 'adjustmentWindow', ...
         round(grid.dims(1)/8) );
-    grid.info.adjustmentwindow = params.adjustmentwindow;
+    
     params = default_param( params, 'finalAdjust', true );
     aw = params.adjustmentwindow;
         
@@ -19,14 +16,12 @@ function grid = adjust_grid( plate, grid, varargin )
     
 %     while (fitfact > params.convergethresh)
     for iter = 1
-        grid.info.iterations = grid.info.iterations + 1;
-        
         %% Adjust internal spots
         
         rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
         ccc = grid.dims(2)/2 - aw : grid.dims(2)/2 + aw + 1;
 
-        [grid fitfact] = minor_adjust_grid( plate, grid, rrr, ccc );
+        grid = minor_adjust_grid( plate, grid, rrr, ccc );
         
     end
     

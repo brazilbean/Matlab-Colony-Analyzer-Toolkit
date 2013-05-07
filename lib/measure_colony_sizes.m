@@ -8,7 +8,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
 
     params = default_param( varargin, ...
         'manualGrid', false, ...
-        'thresholdMethod', local_fitted(), ... 
+        'thresholdMethod', fast_local_fitted(), ... 
         'sizeFunction', @threshold_bounded );
     
     % Make sure defaults are passed to other functions
@@ -17,7 +17,12 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     %% Load Plate
     if (ischar( plate ))
         % plate is file name
-        plateLoader = PlateLoader(varargin{:});
+        if isfield(params, 'grid') && isfield(params.grid, 'info') ...
+                && isfield(params.grid.info, 'PlateLoader')
+            plateLoader = params.grid.info.PlateLoader;
+        else
+            plateLoader = PlateLoader(varargin{:});
+        end
         plate = plateLoader.load(plate);
         
     else
@@ -31,37 +36,39 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     end
     
     %% Determine grid
-    if (params.manualgrid)
-        % Manual Grid
-        params.grid = manual_grid( plate, varargin{:} );
-        if (isempty(params.grid))
-            sizes = nan;
-            grid = struct;
-            return;
-        end
-        
+    if isfield(params, 'grid')
+        grid = params.grid;
     else
-        % Auto Grid
-        if ( ~isfield( params, 'grid' ) )
-            params.grid = determine_colony_grid( plate, varargin{:} );
+        if (params.manualgrid)
+            % Manual Grid
+            grid = manual_grid( plate, varargin{:} );
+            if (isempty(grid))
+                sizes = nan;
+                grid = struct;
+                return;
+            end
+
+        else
+            % Auto Grid
+            grid = determine_colony_grid( plate, varargin{:} );
+            
         end
     end
     
-    grid = params.grid;
     grid.info.PlateLoader = plateLoader;
     
     %% Intensity Thresholds
     if (~isfield(grid, 'thresh'))
         grid.thresh = params.thresholdmethod.apply_threshold(plate, grid);
+        grid.info.ThresholdMethod = params.thresholdmethod;
     end
     
     %% Iterate over grid positions and measure colonies
     sizes = nan(grid.dims);
-    grid.threshed = false(size(plate));
-    
     for ii = 1 : prod(grid.dims)
         sizes(ii) = params.sizefunction( plate, grid, ii );
     end
     grid.params = params;
+    grid.info.SizeFunction = params.sizefunction;
     
 end

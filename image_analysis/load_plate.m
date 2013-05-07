@@ -2,10 +2,6 @@
 % Gordon Bean, February 2013
 
 function [plate, grid] = load_plate( filename, varargin )
-    params = default_param( varargin, ...
-        'channel', 1:3, ... % Red, Green, Blue
-        'rotate', true ); 
-    
     % Look for grid information to load the image
     if exist([filename '.info.mat'],'file')
         grid = load([filename '.info.mat']);

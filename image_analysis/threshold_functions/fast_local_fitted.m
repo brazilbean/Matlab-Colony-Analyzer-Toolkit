@@ -6,6 +6,7 @@ classdef fast_local_fitted < threshold_method
         bins;
         fdr;
         num_background_iters;
+        upper_threshold_function;
     end
     
     methods
@@ -19,6 +20,7 @@ classdef fast_local_fitted < threshold_method
                 'bins', 50 : 20 : 200, ...
                 'fdr', 0.1, ...
                 'num_background_iters', 5, ...
+                'upper_threshold_function', @(x)nan, ...
                 varargin{:});
             
         end
@@ -77,17 +79,18 @@ classdef fast_local_fitted < threshold_method
         
         % Local fitted methods
         function [pm, st] = get_pm_std(this, box )
-            it = (max(box(:)) + min(box(:)))/2;
-            if (mean(box(:) > it)>0.98)
-                it = (it + 2*max(box(:)))/3;
-            end
+            it = this.upper_threshold_function(box);
             pm = this.fastmode(box(:));
-            c = this.num_background_iters;
-            while (c > 0 && pm > it)
-                it = (it + min(box(:)))/2;
-                pm = this.fastmode(box(box<it));
-                c = c - 1;
+            
+            if ~isnan(it)
+                c = this.num_background_iters;
+                while (c > 0 && pm > it)
+                    it = (it + min(box(:)))/2;
+                    pm = this.fastmode(box(box<it));
+                    c = c - 1;
+                end
             end
+            
             tmp = box(box<pm)-pm;
             st = std([tmp;-tmp]);
         end
