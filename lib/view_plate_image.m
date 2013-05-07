@@ -30,7 +30,13 @@ function params = view_plate_image( filename, varargin )
         elseif (strcmpi(filename(end-6:end),'.cs.txt'))
             filename = filename(1:end-7);
         end
-        plate = crop_background( nanmean( imread( filename ), 3) );
+%         plate = crop_background( nanmean( imread( filename ), 3) );
+        if (strcmpi(filename(end-3:end),'png'))
+            % Assume it was raw, use green channel
+            plate = load_plate( filename, 'channel', 2);
+        else
+            plate = load_plate( filename );
+        end
 
         infofile = [filename '.info.mat'];
         
@@ -119,22 +125,30 @@ function params = view_plate_image( filename, varargin )
         if (params.applythreshold)
             if (islogical(params.applythreshold))
                 
-                if (isfield( grid, 'threshed'))
-                    im = imagesc( grid.threshed );
-                
+                if (isfield( grid, 'threshed') || islogical(grid.thresh))
+                    if (islogical(grid.thresh))
+                        im = imagesc(grid.thresh);
+                    else
+                        im = imagesc( grid.threshed );
+                    end
                 else
                     pthresh = make_plate_threshold( plate, grid );
-                    im = imagesc(plate > pthresh);
-                    
+                    im = imagesc(plate > pthresh);   
                 end
+                
             else
                 im = imagesc(plate > params.applythreshold);
+                
             end
             
         elseif (params.maskthreshold)
             plate2 = plate;
-            if (isfield( grid, 'threshed'))
-                plate2( grid.threshed ) = median(plate(:));
+            if (isfield( grid, 'threshed') || islogical(grid.thresh))
+                if (islogical(grid.thresh))
+                    plate2(grid.thresh) = median(plate(:));
+                else
+                    plate2( grid.threshed ) = median(plate(:));
+                end
             else
                 plate2( plate > make_plate_threshold( plate, grid ) ) =...
                     median(plate(:));   
