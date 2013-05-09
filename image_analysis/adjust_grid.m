@@ -2,20 +2,14 @@
 % Gordon Bean, December 2012
 
 function grid = adjust_grid( plate, grid, varargin )
-    params = get_params( varargin{:} );
-    
-    params = default_param( params, 'convergethresh', 3 );
-    params = default_param( params, 'adjustmentWindow', ...
-        round(grid.dims(1)/8) );
-    
-    params = default_param( params, 'finalAdjust', true );
+    params = default_param( varargin, ...
+        'adjustmentWindow', round(grid.dims(1)/8), ...
+        'fitfunction', @(r,c) [ones(numel(r),1) r(:) c(:)], ...
+        'numMiddleAdjusts', 1, ...
+        'numFullAdjusts', 1 );
     aw = params.adjustmentwindow;
-        
-    params = default_param( params, 'fitfunction', ...
-        @(r,c) [ones(numel(r),1) r(:) c(:)] );
     
-%     while (fitfact > params.convergethresh)
-    for iter = 1
+    for iter = 1 : params.nummiddleadjusts
         %% Adjust internal spots
         
         rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
@@ -26,7 +20,7 @@ function grid = adjust_grid( plate, grid, varargin )
     end
     
     %% Final adjustment
-    if (params.finaladjust)
+    for iter = 1 : params.numfulladjusts
         rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
         ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
 

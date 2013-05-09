@@ -6,6 +6,13 @@ function grid = compute_initial_grid( plate, varargin )
     params = default_param( params, 'sizeStandard', [1853 2765] );
     
     %% Compute grid spacing and dimensions
+%     if ~isfield( params, 'gridSpacing') || ~isfield( params, 'dimensions')
+%         [tmpdim, tmpwin] = estimate_grid_dim_and_space( plate );
+%         
+%         params = default_param( params, ...
+%             'gridSpacing', tmpwin, ...
+%             'dimensions', tmpdim );
+%     end
     params = default_param( params, 'gridSpacing', ...
         estimate_grid_spacing( plate ) );
     win = params.gridspacing;

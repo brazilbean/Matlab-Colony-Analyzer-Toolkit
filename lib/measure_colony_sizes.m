@@ -8,6 +8,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
 
     params = default_param( varargin, ...
         'manualGrid', false, ...
+        'plateLoader', PlateLoader(), ...
         'thresholdMethod', fast_local_fitted(), ... 
         'sizeFunction', @threshold_bounded );
     
@@ -17,13 +18,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     %% Load Plate
     if (ischar( plate ))
         % plate is file name
-        if isfield(params, 'grid') && isfield(params.grid, 'info') ...
-                && isfield(params.grid.info, 'PlateLoader')
-            plateLoader = params.grid.info.PlateLoader;
-        else
-            plateLoader = PlateLoader(varargin{:});
-        end
-        plate = plateLoader.load(plate);
+        plate = params.plateloader.load(plate);
         
     else
         % Crop plate
@@ -55,7 +50,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
         end
     end
     
-    grid.info.PlateLoader = plateLoader;
+    grid.info.PlateLoader = params.plateloader;
     
     %% Intensity Thresholds
     if (~isfield(grid, 'thresh'))

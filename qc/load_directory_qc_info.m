@@ -26,11 +26,11 @@ function info = load_directory_qc_info( imagedir )
     end
     
     %% Extract threshold information
-    info.thresh = nan(grids{1}.dims(1),grids{1}.dims(2),n);
-    for ii = 1 : n
-        info.thresh(:,:,ii) = grids{ii}.thresh;
-    end
-    
+%     info.thresh = nan(grids{1}.dims(1),grids{1}.dims(2),n);
+%     for ii = 1 : n
+%         info.thresh(:,:,ii) = grids{ii}.thresh;
+%     end
+%     
     %% File names
     info.files = cell(n,1);
     for ii = 1 : n

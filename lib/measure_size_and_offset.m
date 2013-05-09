@@ -10,7 +10,8 @@ function [sz, offset] = measure_size_and_offset( box, varargin )
     win = (size(box,1)-1)/2;
     
     %% Measure size
-    thresh = get_temp_thresh(box);
+%     thresh = get_temp_thresh(box);
+    thresh = fast_local_fitted('fdr',0.005).determine_threshold(box);
     bbox = imclearborder(box > thresh);
     
     stats = regionprops( bbox, 'area','centroid' );
