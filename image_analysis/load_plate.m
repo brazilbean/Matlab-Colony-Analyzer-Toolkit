@@ -2,18 +2,35 @@
 % Gordon Bean, February 2013
 
 function [plate, grid] = load_plate( filename, varargin )
-    % Look for grid information to load the image
-    if exist([filename '.info.mat'],'file')
-        grid = load([filename '.info.mat']);
-        
-        if isfield(grid, 'info') && isfield(grid.info, 'PlateLoader')
-            plate = grid.info.PlateLoader.load(filename);
-            return
+    params = default_param( varargin );
+    
+    if isfield( params, 'plateloader' )
+        pl = params.plateloader;
+        if exist([filename '.info.mat'],'file')
+            grid = load([filename '.info.mat']);
+        else
+            grid = struct;
+        end
+    else
+        % Look for grid information to load the image
+        if exist([filename '.info.mat'],'file')
+            grid = load([filename '.info.mat']);
+
+            if isfield(grid, 'info') && isfield(grid.info, 'PlateLoader')
+                plate = grid.info.PlateLoader.load(filename);
+                return
+            end
+        else
+            % Otherwise, create a default PlateLoader
+            pl = PlateLoader();
+            if exist([filename '.info.mat'],'file')
+                grid = load([filename '.info.mat']);
+            else
+                grid = struct;
+            end
         end
     end
     
-    % Otherwise, create a PlateLoader
-    pl = PlateLoader(varargin{:});
     plate = pl.load(filename);
     
 end

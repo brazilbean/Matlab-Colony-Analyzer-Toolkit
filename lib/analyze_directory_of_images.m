@@ -8,6 +8,9 @@ function analyze_directory_of_images( imagedir, varargin )
     params = default_param( params, 'parallel', false );
     
     %% Get Image Files
+    if imagedir(end) ~= filesep
+        imagedir = [imagedir filesep];
+    end
     files = dirfiles( imagedir, ['*' params.extension], false );
     
     %% Scan each file
@@ -21,8 +24,8 @@ function analyze_directory_of_images( imagedir, varargin )
                 verbose( verb, ' Analyzing: %s\n', files{ff});
                 analyze_image( [imagedir files{ff}], varargin{:} );
             catch e
-                warning('Image %s/%s failed: %s\n', imagedir, files{ff}, ...
-                    e.message );
+                warning('\nImage %s%s failed: \n%s\n\n', ...
+                    imagedir, files{ff}, e.message );
             end
         end
 
@@ -32,7 +35,7 @@ function analyze_directory_of_images( imagedir, varargin )
                 verbose( params.verbose, ' Analyzing: %s\n', files{ff});
                 analyze_image( [imagedir files{ff}], varargin{:} );
             catch e
-                warning('Image failed:\n %s/%s\n  %s\n', ...
+                warning('\nImage failed:\n %s%s\n  %s\n', ...
                     imagedir, files{ff}, e.message );
             end
         end

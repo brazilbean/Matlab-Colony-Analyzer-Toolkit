@@ -34,7 +34,8 @@ function grid = manual_grid( plate, varargin )
         
         %% Adjust grid
         if ( params.adjustgrid )
-            grid = adjust_grid( plate, grid, varargin{:} );
+            grid = adjust_grid( plate, grid, ...
+                'numMiddleAdjusts', 0, varargin{:} );
         end
 
         %% Verify grid

@@ -7,14 +7,14 @@ function win = estimate_grid_spacing( plate )
     win = robust_estimate( plate );
     
     %% Fine tune
-    rpx = size(plate,1) * [0.4 0.4 0.5 0.6 0.6];
-    cpx = size(plate,2) * [0.4 0.6 0.5 0.4 0.6];
-    wins = nan(length(rpx),1);
-    for jj = 1 : length(wins)
-        box = get_box( plate, rpx(jj), cpx(jj), 2*win );
-        wins(jj) = win_from_box( box, win );
-    end
-    win = nanmean(wins);
+%     [cpx, rpx] = meshgrid(size(plate,2) * linspace(0.3, 0.7, 20), ...
+%         size(plate,1) * linspace(0.3, 0.7, 20) );
+%     wins = nan(length(rpx),1);
+%     for jj = 1 : length(wins)
+%         box = get_box( plate, rpx(jj), cpx(jj), 2*win );
+%         wins(jj) = win_from_box( box, win );
+%     end
+%     win = nanmean(wins);
     
     %% Functions
     function win = robust_estimate( plate )
@@ -23,7 +23,7 @@ function win = estimate_grid_spacing( plate )
         pmids = floor(size(plate) / 2);
         mid = plate(pmids(1)-pw:pmids(1)+pw, pmids(2)-pw:pmids(2)+pw);
 
-        %% Compute weighted pixel distances
+        %% Compute pixel distances
         foo = mean(mid);
         xx = 1 : length(foo);
         foo2 = bsxfun(@minus, xx, xx');
@@ -79,11 +79,15 @@ function win = estimate_grid_spacing( plate )
 
     function win = win_from_box( box, win )
         %% Estimate instensity threshold
-        thresh = estimate_intensity_threshold( box );
+%         thresh = estimate_intensity_threshold( box );
 
         % Use a more stringent threshold for this job.
-        thresh = thresh * 1.1;
+%         thresh = thresh * 1.1;
 
+%         thresh = fast_local_fitted('fdr', 0.01).determine_threshold(box);
+        
+        thresh = (median(min(box)) + median(max(box)))/2;
+        
         %% Identify spot centers
         stats = regionprops( box > thresh, 'centroid', 'area' );
         cents = cat(1, stats.Centroid);
@@ -94,7 +98,7 @@ function win = estimate_grid_spacing( plate )
         dists = sqrt( sum( bsxfun( @minus, ...
             permute(cents, [1 3 2]), permute(cents, [3 1 2])).^2, 3) );
         dists(eye(size(dists))==1) = max(dists);
-        dists(dists > 1.3*win) = nan;
+        dists(dists > 1.35*win) = nan;
         
         %% Determine grid spacing parameter
 %         win = round( parzen_mode( min( dists ) ) );

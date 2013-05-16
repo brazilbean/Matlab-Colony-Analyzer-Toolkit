@@ -9,22 +9,27 @@ function grid = adjust_grid( plate, grid, varargin )
         'numFullAdjusts', 1 );
     aw = params.adjustmentwindow;
     
-    for iter = 1 : params.nummiddleadjusts
-        %% Adjust internal spots
-        
-        rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
-        ccc = grid.dims(2)/2 - aw : grid.dims(2)/2 + aw + 1;
+    if isfield(params, 'rowcoords') && isfield(params, 'colcoords')
+        grid = minor_adjust_grid( plate, grid, ...
+            params.rowcoords, params.colcoords );
+    else
+        for iter = 1 : params.nummiddleadjusts
+            %% Adjust internal spots
 
-        grid = minor_adjust_grid( plate, grid, rrr, ccc );
-        
-    end
-    
-    %% Final adjustment
-    for iter = 1 : params.numfulladjusts
-        rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
-        ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
+            rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
+            ccc = grid.dims(2)/2 - aw : grid.dims(2)/2 + aw + 1;
 
-        grid = minor_adjust_grid( plate, grid, rrr, ccc );
+            grid = minor_adjust_grid( plate, grid, rrr, ccc );
+
+        end
+
+        %% Final adjustment
+        for iter = 1 : params.numfulladjusts
+            rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
+            ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
+
+            grid = minor_adjust_grid( plate, grid, rrr, ccc );
+        end
     end
     
     %% Extras
@@ -32,6 +37,8 @@ function grid = adjust_grid( plate, grid, varargin )
     
     grid.info.theta = pi/2 - atan2 ...
         ( grid.factors.row(2), grid.factors.row(3) );
+    
+    grid.info.fitfunction = params.fitfunction;
     
     %% ---- Subroutines ---- %%
     function [grid fitfact] = minor_adjust_grid( plate, grid, rrr, ccc )
@@ -60,7 +67,6 @@ function grid = adjust_grid( plate, grid, varargin )
         grid.factors.col = cfact;
     
         %% Compute grid position
-        n = numel(rr);
         grid.r = reshape(Afun(rr(:),cc(:)) * rfact, size(grid.r));
         grid.c = reshape(Afun(rr(:),cc(:)) * cfact, size(grid.r));
         
@@ -72,8 +78,9 @@ function grid = adjust_grid( plate, grid, varargin )
     function [rpos cpos] = adjust_spot( plate, rpos, cpos, win )
         
         box = get_box( plate, rpos, cpos, win );
-        [~, off] = measure_size_and_offset( box );
-        off = round(off);
+%         [~, off] = measure_size_and_offset( box );
+        off = measure_colony_offset( box );
+%         off = round(off);
         
         if (any(off > win/2))
             error('Offset too large - %s', ...
@@ -83,8 +90,11 @@ function grid = adjust_grid( plate, grid, varargin )
             rpos = nan;
             cpos = nan;
         else
-            rpos = rpos + off(2);
-            cpos = cpos + off(1);
+%             rpos = rpos + off(2);
+%             cpos = cpos + off(1);
+            rpos = rpos + off(1);
+            cpos = cpos + off(2);
         end        
     end
+
 end

@@ -45,7 +45,7 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
 
         else
             % Auto Grid
-            grid = determine_colony_grid( plate, varargin{:} );
+            grid = auto_grid( plate, varargin{:} );
             
         end
     end
