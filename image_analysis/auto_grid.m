@@ -7,7 +7,8 @@ function grid = auto_grid( plate, varargin )
         'midCols', [0.4 0.6], ...
         'midGridDims', [8 8], ...
         'minSpotSize', 10, ...
-        'thresholdMethod', fast_local_fitted('fdr',0.01));
+        'gridThresholdMethod', min_frequency('offset', 5), ...
+        'sizeStandard', [1853 2765]);
     
     %% Grid properties
     if isfield(params, 'gridspacing')
@@ -24,12 +25,22 @@ function grid = auto_grid( plate, varargin )
     
     [grid.r, grid.c] = deal(nan(grid.dims));
     
+    %% Identify the grid orientation
+    tang = params.sizestandard(1) / params.sizestandard(2);
+    ratiofun = @(xp, yp) atan( -(yp - xp*tang)./(yp*tang-xp) );
+    [yp xp] = size(plate);
+
+    theta = ratiofun( xp, yp );
+    if ( mean(plate(1,floor(end/2):end)) > mean(plate(1,1:floor(end/2))) )
+        theta = -theta;
+    end
+    
     %% Initial placement of grid
     range = @(a) fix(a(1)):fix(a(2));
     mid = plate( range(size(plate,1)*params.midrows), ...
         range(size(plate,2)*params.midcols) );
 
-    itmid = params.thresholdmethod.determine_threshold(mid);
+    itmid = params.gridthresholdmethod.determine_threshold(mid);
 
     stats = regionprops( imclearborder(mid > itmid), 'area', 'centroid' );
     cents = cat(1, stats.Centroid);
@@ -37,17 +48,31 @@ function grid = auto_grid( plate, varargin )
     cents = cents(areas > params.minspotsize,:);
     
     [~,mi] = min(sqrt(sum(cents.^2,2)));
-    r0 = cents(mi,2);
-    c0 = cents(mi,1);
+    r0 = cents(mi,2) + size(plate,1)*params.midrows(1);
+    c0 = cents(mi,1) + size(plate,2)*params.midcols(1);
 
-    [cc0 rr0] = meshgrid(c0 + (1:params.midgriddims(2))*grid.win, ...
-        r0 + (1:params.midgriddims(1))*grid.win);
+%     [cc0 rr0] = meshgrid(c0 + (1:params.midgriddims(2))*grid.win, ...
+%         r0 + (1:params.midgriddims(1))*grid.win);
+%     [cc0 rr0] = meshgrid((1:params.midgriddims(2))*grid.win, ...
+%         (1:params.midgriddims(1))*grid.win);
+    [cc0 rr0] = meshgrid((0:params.midgriddims(2)-1)*grid.win, ...
+        (0:params.midgriddims(1)-1)*grid.win);
 
     ri = (1 : size(rr0,1)) + 0;
     ci = (1 : size(cc0,2)) + 0;
 
-    grid.r(ri,ci) = rr0 + size(plate,1)*0.4 ;
-    grid.c(ri,ci) = cc0 + size(plate,2)*0.4 ;
+%     grid.r(ri,ci) = r0 + rr0*cos(theta) + cc0*sin(theta);
+%     grid.c(ri,ci) = c0 + cc0'*sin(theta) + rr0'*cos(theta);
+    grid.r(ri,ci) = rr0;
+    grid.c(ri,ci) = cc0;
+    % I'm not sure why the cc0 and rr0 are transposed, but this is what
+    % works...
+    
+    rotmat = [cos(theta) -sin(theta); sin(theta) cos(theta)];
+    val = ~isnan(grid.r);
+    tmp = rotmat * [grid.c(val) grid.r(val)]';
+    grid.r(val) = r0 + tmp(2,:);
+    grid.c(val) = c0 + tmp(1,:);
     
     %% Adjustment and Extrapolation
     % I give it two rounds of fitting to improve accuracy
@@ -81,13 +106,14 @@ function grid = auto_grid( plate, varargin )
     end
 
     %% Determine offsets
-    roff = find(nanmean(eplate,2) < 0.1, 1)-1;
+    correlation_threshold = 0.15;
+    roff = find(nanmean(eplate,2) < correlation_threshold, 1)-1;
     if isempty(roff)
-        roff = find(nanmean(eplate,2)>0.1, 1, 'last');
+        roff = find(nanmean(eplate,2) > correlation_threshold, 1, 'last');
     end
-    coff = find(nanmean(eplate,1) < 0.1, 1)-1;
+    coff = find(nanmean(eplate,1) < correlation_threshold, 1)-1;
     if isempty(coff)
-        coff = find(nanmean(eplate,1)>0.1, 1, 'last');
+        coff = find(nanmean(eplate,1) > correlation_threshold, 1, 'last');
     end
     
     tmpr = grid.r;

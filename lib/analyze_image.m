@@ -2,7 +2,8 @@
 % Gordon Bean, December 2012
 
 function analyze_image( filename, varargin )
-    output_extension = '.cs.txt';
+    params = default_param( varargin, ...
+    'outputExtension', '.cs.txt' );
     
     %% Measure colony sizes
     [cs grid] = measure_colony_sizes( filename, varargin{:} );
@@ -14,7 +15,7 @@ function analyze_image( filename, varargin )
     %% Print .TXT file
     [rr cc] = ind2sub( grid.dims, 1 : prod(grid.dims) );
     
-    fid = fopen( [filename output_extension], 'wt');
+    fid = fopen( [filename params.outputextension], 'wt');
     fprintf(fid, 'row\tcolumn\tsize\n');
     iprintf(fid, '%i\t%i\t%i\n', rr(:), cc(:), cs(:));
     

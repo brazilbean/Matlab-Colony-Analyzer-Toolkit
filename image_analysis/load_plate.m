@@ -19,6 +19,8 @@ function [plate, grid] = load_plate( filename, varargin )
             if isfield(grid, 'info') && isfield(grid.info, 'PlateLoader')
                 plate = grid.info.PlateLoader.load(filename);
                 return
+            else
+                pl = PlateLoader();
             end
         else
             % Otherwise, create a default PlateLoader

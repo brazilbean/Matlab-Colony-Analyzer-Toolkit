@@ -4,24 +4,26 @@
 % Measures the sizes of colonies in the image.
 % First argument may be the image data or a file name.
 
-function [sizes, grid] = measure_colony_sizes( plate, varargin )
+function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
     params = default_param( varargin, ...
         'manualGrid', false, ...
         'plateLoader', PlateLoader(), ...
-        'thresholdMethod', fast_local_fitted(), ... 
-        'sizeFunction', @threshold_bounded );
+        'thresholdMethod', background_offset(), ... 
+        'sizeFunction', @threshold_bounded, ...
+        'loadGridCoords', false );
     
     % Make sure defaults are passed to other functions
     varargin = param_pairs( params );
     
     %% Load Plate
-    if (ischar( plate ))
+    if (ischar( plate_ ))
         % plate is file name
-        plate = params.plateloader.load(plate);
+        plate = params.plateloader.load(plate_);
         
     else
         % Crop plate
+        plate = plate_;
         if (size(plate,3) > 1)
             % Plate is assumed to be in RGB format
             warning('Assumptions were made concerning the plate format');
@@ -33,6 +35,23 @@ function [sizes, grid] = measure_colony_sizes( plate, varargin )
     %% Determine grid
     if isfield(params, 'grid')
         grid = params.grid;
+    elseif params.loadgridcoords
+        % Load the grid coordinates from file
+        if ~ischar(plate_)
+            error('To use loadGridCoords you must provide the file name');
+        end
+        [~,grid_] = load_plate( plate_ );
+        if isempty(fieldnames(grid_))
+            error('No grid file found.');
+        end
+        grid.r = grid_.r;
+        grid.c = grid_.c;
+        grid.win = grid_.win;
+        grid.dims = grid_.dims;
+        grid.factors = grid_.factors;
+        grid.info.theta = grid_.info.theta;
+        grid.info.fitfunction = grid_.info.fitfunction;
+        
     else
         if (params.manualgrid)
             % Manual Grid

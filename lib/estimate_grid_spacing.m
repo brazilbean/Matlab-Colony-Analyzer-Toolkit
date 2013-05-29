@@ -71,7 +71,8 @@ function win = estimate_grid_spacing( plate )
         end
         pks = pks(1:ppos-1);
         scales = scales(1:ppos-1);
-        pks = pks(scales > 0.8);
+%         pks = pks(scales > 0.8); % Changed to 0.5 on May 17, 2013.
+        pks = pks(scales > 0.5);
 
         win = floor(mean(pks ./ (1:length(pks))'));
 

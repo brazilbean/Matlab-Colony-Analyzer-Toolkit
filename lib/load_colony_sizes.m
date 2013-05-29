@@ -1,11 +1,14 @@
 %% Load Colony Sizes
 % Gordon Bean, December 2012
 
-function [cs files] = load_colony_sizes( filename )
+function [cs files] = load_colony_sizes( filename, varargin )
+    params = default_param(varargin, ...
+        'extension', '.cs.txt');
 
+    ext = ['*' params.extension];
     if (isdir(filename))
         % Directory of files
-        files = dirfiles( filename, '*.cs.txt', true );
+        files = dirfiles( filename, ext );
         n = length(files);
         cs = cell(n,1);
         
@@ -22,7 +25,7 @@ function [cs files] = load_colony_sizes( filename )
     
     function cs = load_file( filename )
         filename = get_cs_txt_file( filename );
-        tmp = filescan( filename, '%f %f %f', 'headerlines', 1);
+        tmp = filescan( filename, '%f %f %f %*[^\n]', 'headerlines', 1);
 
         % Get row and column subscripts
         rr = tmp{1};
