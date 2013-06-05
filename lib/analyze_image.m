@@ -22,7 +22,7 @@ function analyze_image( filename, varargin )
     
     %% Measure colony sizes
     [cs grid] = measure_colony_sizes( filename, varargin{:} );
-    if (iscell(cs) && isempty(cs)) || (~iscell(cs) && isnan(cs))
+    if (iscell(cs) && isempty(cs)) || (~iscell(cs) && all(in(isnan(cs))))
         % The user canceled the manual analysis.
         return;
     end

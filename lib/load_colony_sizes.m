@@ -15,9 +15,10 @@ function [cs files] = load_colony_sizes( filename, varargin )
         for ff = 1 : n
             cs{ff} = load_file( files{ff} );
         end
-        if isstruct(cs)
+        if isstruct(cs{1})
             % Multiple measurements returned
             % Combine array of structs into struct with array fields
+            cs = cat(1, cs{:});
             cs_ = struct;
             for ff = fieldnames(cs)'
                 cs_.(ff{:}) = cat(1, cs.(ff{:}));
