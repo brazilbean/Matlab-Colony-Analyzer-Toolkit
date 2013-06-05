@@ -9,7 +9,7 @@ function add_mca_toolkit_to_path
     pp = sprintf('%s/', tmp{1}{1:end-1});
     
     % Add directories
-    addpath( [pp '/cs_analysis'] );
+    addpath( genpath([pp '/cs_analysis']) );
     addpath( genpath([pp '/image_analysis']) );
     addpath( [pp '/lib'] );
     addpath( [pp '/qc'] );
