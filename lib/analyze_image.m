@@ -3,21 +3,46 @@
 
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...
-    'outputExtension', '.cs.txt' );
+    'outputExtension', '.cs.txt', ...
+    'measurementLabels', {'area'});
+    
+    % Check measurement labels - should be in cell array
+    if ~iscell(params.measurementlabels)
+        params.measurementlabels = {params.measurementlabels};
+    end
+    if isfield(params, 'sizefunction') && length(params.sizefunction) > 1
+        % More than one measurement expected -> make sure the user supplied
+        % more than one measurement label.
+        
+        if ~iscell(params.sizefunction) || ...
+           length(params.measurementlabels) ~= length(params.sizefunction)
+            error('Mismatched number of measurement functions and labels');
+        end
+    end
     
     %% Measure colony sizes
     [cs grid] = measure_colony_sizes( filename, varargin{:} );
-    if (isnan(cs))
+    if (iscell(cs) && isempty(cs)) || (~iscell(cs) && isnan(cs))
         % The user canceled the manual analysis.
         return;
     end
     
     %% Print .TXT file
+    % Format measurement data
+    if iscell(cs)
+        tmp = cellfun(@in, cs, 'uniformOutput', 0);
+        tmpcs = cat(2, tmp{:});
+    else
+        tmpcs = cs(:);
+    end
+    
     [rr cc] = ind2sub( grid.dims, 1 : prod(grid.dims) );
     
     fid = fopen( [filename params.outputextension], 'wt');
-    fprintf(fid, 'row\tcolumn\tsize\n');
-    iprintf(fid, '%i\t%i\t%i\n', rr(:), cc(:), cs(:));
+    n = length(params.measurementlabels);
+    fprintf(fid, ['row\tcolumn' repmat('\t%s',[1 n]) '\n'], ...
+        params.measurementlabels{:});
+    iprintf(fid,['%i\t%i' repmat('\t%f',[1 n]) '\n'], rr(:), cc(:), tmpcs);
     
     fclose(fid);
     

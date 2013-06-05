@@ -4,20 +4,35 @@
 function off = measure_colony_offset( box, varargin )
     params = default_param( varargin, ...
         'minSpotSize', 20 );
+    
+    % Determine window size from box dimensions
     w = (size(box,1)-1)/2;
     
-    %% Threshold
-    it = (max(min(box)) + max(box(:)))/2;
+    %% Determine the threshold
+    % Get smaller box
+    sbox = get_box(box, w+1, w+1, w/2);
+    
+    % Use the mean of pixel max and min intensities
+    it = (median(min(box)) + max(box(:)))/2;
+    sit = (median(min(sbox)) + max(sbox(:)))/2;
+    it = (it + sit) / 2;
+    
+    %% Determine the colony location
     stats = regionprops( box > it, 'area', 'centroid');
     cents = cat(1, stats.Centroid);
     areas = cat(1, stats.Area);
     cents = cents(areas>params.minspotsize,:);
     
+    % Find the colony that is closest to the center
     ii = argmin( sum(bsxfun(@minus, cents, [w+1 w+1]).^2,2) );
+    
     if isempty(ii)
         off = nan; % No spots of sufficient size => empty spot
     else
+        % Flip (x,y) to be (row,col)
         off = fliplr(cents(ii,:) - w - 1);
+        
+        % Check if an adjacent spot was found 
         if any(abs(off) > w/2)
             off = nan; % Found adjacent spot => empty spot
         end

@@ -78,9 +78,19 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
     end
     
     %% Iterate over grid positions and measure colonies
-    sizes = nan(grid.dims);
-    for ii = 1 : prod(grid.dims)
-        sizes(ii) = params.sizefunction( plate, grid, ii );
+    if iscell(params.sizefunction)
+        sizes = cell(size(params.sizefunction));
+        for jj = 1 : numel(sizes)
+            sizes{jj} = nan(grid.dims);
+            for ii = 1 : prod(grid.dims)
+                sizes{jj}(ii) = params.sizefunction{jj}( plate, grid, ii );
+            end
+        end
+    else
+        sizes = nan(grid.dims);
+        for ii = 1 : prod(grid.dims)
+            sizes(ii) = params.sizefunction( plate, grid, ii );
+        end
     end
     grid.params = params;
     grid.info.SizeFunction = params.sizefunction;

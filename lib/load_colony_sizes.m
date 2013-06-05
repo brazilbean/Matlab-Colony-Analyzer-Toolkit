@@ -15,7 +15,18 @@ function [cs files] = load_colony_sizes( filename, varargin )
         for ff = 1 : n
             cs{ff} = load_file( files{ff} );
         end
-        cs = cat(1, cs{:});
+        if isstruct(cs)
+            % Multiple measurements returned
+            % Combine array of structs into struct with array fields
+            cs_ = struct;
+            for ff = fieldnames(cs)'
+                cs_.(ff{:}) = cat(1, cs.(ff{:}));
+            end
+            cs = cs_;
+        else
+            % Single measurement returned
+            cs = cat(1, cs{:});
+        end
         
     else
         % Single file
@@ -25,7 +36,17 @@ function [cs files] = load_colony_sizes( filename, varargin )
     
     function cs = load_file( filename )
         filename = get_cs_txt_file( filename );
-        tmp = filescan( filename, '%f %f %f %*[^\n]', 'headerlines', 1);
+        
+        % Determine number of columns
+        fid = fopen(filename);
+        header = fgetl(fid);
+        fields = textscan(header, '%s');
+        fields = fields{1};
+        ncols = length(fields);
+        fclose(fid);
+        
+        format = [repmat(' %f', [1 ncols]) ' %*[^\n]'];
+        tmp = filescan( filename, format, 'headerlines', 1);
 
         % Get row and column subscripts
         rr = tmp{1};
@@ -34,11 +55,22 @@ function [cs files] = load_colony_sizes( filename, varargin )
         % Get dimensions
         nr = max(rr);
         nc = max(cc);
-        cs = nan(1, nr*nc);
-
+        
         % Copy colony sizes
         ii = sub2ind( [nr nc], rr, cc );
-        cs(ii) = tmp{3};
+        if (length(tmp) < 4)
+            % Only one set of measurements
+            cs = nan(1, nr*nc);
+            cs(ii) = tmp{3};
+        else
+            % Two or more measurements - return a struct
+            cs = struct;
+            for f = 3 : length(fields)
+                cs.(fields{f}) = nan(1, nr*nc);
+                cs.(fields{f})(ii) = tmp{f};
+            end
+            
+        end
     end
 
     function file = get_cs_txt_file( file )
