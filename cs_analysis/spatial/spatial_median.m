@@ -53,9 +53,10 @@ function out = spatial_median( data, varargin )
             out = params;
             
         else
-            % Compute filter
+            % Compute the filter
             out = blockfun ...
                 (data, params.window, params.windowfun, varargin{:});
+            
         end
         
     end
