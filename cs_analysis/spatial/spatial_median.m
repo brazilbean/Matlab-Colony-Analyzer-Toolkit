@@ -6,7 +6,7 @@
 
 function out = spatial_median( data, varargin )
 
-    %% Determine mode of operation
+    % Determine mode of operation
     % If data is a str, assume it is a parameter, and return a function
     % handle.
     % Otherwise, apply the spatial_median spatial filter.
@@ -16,6 +16,7 @@ function out = spatial_median( data, varargin )
         out = @(x) spatial_median(x);
         
     elseif ischar(data)
+        % Just arguments, no data - return function handle
         % Check for uneven number of arguments (remember that data is part
         % of varargin)
         if mod(length(varargin),2) == 0

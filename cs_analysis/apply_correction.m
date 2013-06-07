@@ -6,6 +6,7 @@
 
 function out = apply_correction( data, varargin )
     % Get dimensions
+    n = size(data,2);
     dims = [8 12] .* sqrt( n / 96 );
     
     % Apply corrections
