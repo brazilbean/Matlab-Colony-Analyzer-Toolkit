@@ -1,15 +1,29 @@
 %% Measure Colony Sizes
-% Gordon Bean, December 2012
+%  Matlab Colony Analyzer Toolkit
+%  Gordon Bean, December 2012
 %
 % Measures the sizes of colonies in the image.
 % First argument may be the image data or a file name.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% manualGrid <false>
+%  - if true, uses manual_grid to determine the grid location
+% plateLoader <PlateLoader()>
+%  - the PlateLoader object used to load the images. The value passed
+%  should be an instance of an object that extends PlateLoader.
+% thresholdMethod <background_offset()>
+%  - the threshold_method object used to determine and apply the
+%  pixel-intensity threshold to the image. The value passed should be an
+%  instance of an object that extends threshold_method.
+% All parameters are passed to measure_colony_sizes.
 
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
     params = default_param( varargin, ...
         'manualGrid', false, ...
         'plateLoader', PlateLoader(), ...
-        'thresholdMethod', background_offset(), ... 
+        'thresholdMethod', BackgroundOffset(), ... 
         'sizeFunction', @threshold_bounded, ...
         'loadGridCoords', false );
     

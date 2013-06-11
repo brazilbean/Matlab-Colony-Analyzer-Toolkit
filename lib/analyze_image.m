@@ -1,5 +1,16 @@
 %% Analyze Image
-% Gordon Bean, December 2012
+%  Matlab Colony Analyzer Toolkit
+%  Gordon Bean, December 2012
+%
+% Parameters
+% ------------------------------------------------------------------------
+% outputExtension <'.cs.txt'>
+%  - results will be stored in <original_filename>.<outputExtension>
+% measurementLabels <'area'>
+%  - When multiple quantification methods are used, these labels are used
+%  as column headers in the output file.
+%
+% All parameters are passed to measure_colony_sizes.
 
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...

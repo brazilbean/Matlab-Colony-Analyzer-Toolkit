@@ -1,5 +1,17 @@
 %% Analyze Directory of Images
-% Gordon Bean, December 2012
+%  Matlab Colony Analyzer Toolkit
+%  Gordon Bean, December 2012
+%
+% Parameters
+% ------------------------------------------------------------------------
+% extension <'.JPG'>
+%  - only files with this extension will be processed
+% verbose <false>
+%  - if true, the filename is printed as the file is processed
+% parallel <false>
+%  - if true, uses matlabpool to process directory on multiple cores
+%
+% All parameters are passed to analyze_image.
 
 function analyze_directory_of_images( imagedir, varargin )
     params = get_params( varargin{:} );
