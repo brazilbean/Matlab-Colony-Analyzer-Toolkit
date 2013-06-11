@@ -13,9 +13,9 @@
 %  - the PlateLoader object used to load the images. The value passed
 %  should be an instance of an object that extends PlateLoader.
 % thresholdMethod <background_offset()>
-%  - the threshold_method object used to determine and apply the
+%  - the ThresholdMethod object used to determine and apply the
 %  pixel-intensity threshold to the image. The value passed should be an
-%  instance of an object that extends threshold_method.
+%  instance of an object that extends ThresholdMethod.
 % All parameters are passed to measure_colony_sizes.
 
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
