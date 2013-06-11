@@ -20,10 +20,20 @@ function analyze_directory_of_images( imagedir, varargin )
     params = default_param( params, 'parallel', false );
     
     %% Get Image Files
-    if imagedir(end) ~= filesep
-        imagedir = [imagedir filesep];
+    if ischar(imagedir)
+        if imagedir(end) ~= filesep
+            imagedir = [imagedir filesep];
+        end
+        files = dirfiles( imagedir, ['*' params.extension] );
+        
+    elseif iscell(imagedir)
+        % An array of files was passed - analyze them.
+        files = imagedir;
+        
+    else
+        % I don't know what they gave me.
+        error('Unrecognize option for imagedir.');
     end
-    files = dirfiles( imagedir, ['*' params.extension], false );
     
     %% Scan each file
     if (params.parallel)
@@ -34,10 +44,10 @@ function analyze_directory_of_images( imagedir, varargin )
         parfor ff = 1 : length(files)
             try
                 verbose( verb, ' Analyzing: %s\n', files{ff});
-                analyze_image( [imagedir files{ff}], varargin{:} );
+                analyze_image( files{ff}, varargin{:} );
             catch e
-                warning('\nImage %s%s failed: \n%s\n\n', ...
-                    imagedir, files{ff}, e.message );
+                warning('\nImage %s failed: \n%s\n\n', ...
+                    files{ff}, e.message );
             end
         end
 
@@ -45,10 +55,10 @@ function analyze_directory_of_images( imagedir, varargin )
         for ff = 1 : length(files)
             try
                 verbose( params.verbose, ' Analyzing: %s\n', files{ff});
-                analyze_image( [imagedir files{ff}], varargin{:} );
+                analyze_image( files{ff}, varargin{:} );
             catch e
-                warning('\nImage failed:\n %s%s\n  %s\n', ...
-                    imagedir, files{ff}, e.message );
+                warning('\nImage failed:\n %s\n  %s\n', ...
+                    files{ff}, e.message );
             end
         end
     end

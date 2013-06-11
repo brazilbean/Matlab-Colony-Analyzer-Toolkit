@@ -22,7 +22,7 @@ classdef BackgroundOffset < ThresholdMethod
                 % Calibrate background_max
                 this = this.calibrate(plate, grid);
             end
-            thrplate = apply_threshold@threshold_method ...
+            thrplate = apply_threshold@ThresholdMethod ...
                 (this, plate, grid);
         end
         
