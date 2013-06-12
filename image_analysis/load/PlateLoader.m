@@ -1,5 +1,19 @@
 %% PlateLoader Class
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, May 2013
+%
+% This object is used to load plate images. It can be extended to create
+% custom image-loading functionality.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% channel <1:3>
+%  - indicates which of the RBG channels to process
+% allowRotate <true>
+%  - the default behavior of PlateLoader is to rotate the image by 90
+%  degrees if the image is in portrait mode. If allowRotate is false, the
+%  image will not be rotated.
+%
 
 classdef PlateLoader
     properties

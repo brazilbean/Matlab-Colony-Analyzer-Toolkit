@@ -1,5 +1,19 @@
 %% Manual Grid
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, December 2012
+%
+% Manually determine the colony grid position.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% adjustGrid <true>
+%  - if false, adjust_grid will NOT be called on the grid interpollated by
+%  the manually-indicated grid corners. 
+% gridSpacing <estimate_grid_spacing(plate)>
+%  - the distance, in pixels, between the centers of adjacent colonies.
+% dimensions <estimate_dimensions(plate, grid.win)>
+%  - the dimensions of the colony grid (rows x columns)
+%
 
 function grid = manual_grid( plate, varargin )
 

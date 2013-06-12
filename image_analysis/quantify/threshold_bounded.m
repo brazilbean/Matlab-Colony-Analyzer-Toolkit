@@ -1,6 +1,19 @@
 %% Threshold Bounded
-% Colony Size Measuring Method
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, March 2013
+%
+% Returns the area of the colony at the indicated grid position.
+%
+% Usage
+% ------------------------------------------------------------------------
+% [sz, bbox] = threshold_bounded( plate, grid, ii )
+%  - PLATE is the plate image
+%  - GRID is the grid struct
+%  - II is the index of the colony to be quantified
+%  - SZ is the area of the colony
+%  - BBOX is a binary matrix of size(SZ) indicating the pixels counted as
+%  part of the colony.
+%
 
 function [sz, bbox] = threshold_bounded( plate, grid, ii )
     
@@ -18,5 +31,3 @@ function [sz, bbox] = threshold_bounded( plate, grid, ii )
     sz = sum(bbox(:));
 
 end
-
-    

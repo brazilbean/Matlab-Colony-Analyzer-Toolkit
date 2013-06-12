@@ -1,5 +1,21 @@
 %% Background offset - a threshold based on the background intensity
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, May 2013
+%
+% Parameters
+% ------------------------------------------------------------------------
+% offset <1.25}
+%  - the factor multiplied by the background intensity to get the intensity
+%  cutoff.
+% fullPlate <false>
+%  - if true, uses an adjusted algorithm for determining the background
+%  intensity. Plates that have large colonies (nearly overgrown or larger)
+%  should set this parameter to true.
+% background_max <nan>
+%  - a parameter for internal use - this is set when apply_threshold is
+%  called.
+%
+% See also ThresholdMethod
 
 classdef BackgroundOffset < ThresholdMethod
     properties
@@ -48,6 +64,5 @@ classdef BackgroundOffset < ThresholdMethod
             end
         end
     end
-    
     
 end

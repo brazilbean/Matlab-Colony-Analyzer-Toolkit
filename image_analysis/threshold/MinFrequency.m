@@ -2,7 +2,19 @@
 % MATLAB Colony Analyzer Toolkit
 % Gordon Bean, May 2013
 %
-% See also threshold_method
+% Computes a pixel-intensity threshold based on the intensity with the
+% minimum frequency in a 2D window around the colony. 
+%
+% This method is based on the observation that pixels defining the border
+% between colony and background have pixel intensities that are infrequent
+% compared to pixel intensities in the background and foreground.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% offset < 0 >
+%  - indicates the value added to the estimated pixel intensity cutoff.
+%
+% See also ThresholdMethod
 
 classdef MinFrequency < ThresholdMethod
     properties

@@ -1,5 +1,18 @@
 %% Find colony borders
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, December 2012
+%
+% Returns the row and column values of the bounding box surrounding the
+% colony in the center of the given 2D window.
+%
+% Usage
+% ------------------------------------------------------------------------
+% mins = find_colony_borders_threshed( tmp, threshed )
+%  - TMP is the 2D window
+%  - THRESHED is the thresholded version of tmp
+%  - MINS is north, south, west, and east positions of the bounding box
+%  (i.e. [rmin rmax cmin cmax]).
+% 
 
 function mins = find_colony_borders_threshed( tmp, threshed )
     if (nargin < 2)
@@ -19,13 +32,6 @@ function mins = find_colony_borders_threshed( tmp, threshed )
         if (~isempty(rmin_))
             rmin = midr - rmin_ + 1;
         end
-        
-%         for ii = midr : -1 : rmin
-%             if (max( tmp(ii,midc+(-w:w)) ) < ithresh)
-%                 rmin = ii;
-%                 break;
-%             end
-%         end
     end
     
     % South
@@ -36,13 +42,6 @@ function mins = find_colony_borders_threshed( tmp, threshed )
         if (~isempty(rmax_))
             rmax = midr + rmax_ - 1;
         end
-        
-%         for ii = midr : rmax
-%             if (max( tmp(ii,midc+(-w:w)) ) < ithresh)
-%                 rmax = ii;
-%                 break;
-%             end
-%         end
     end
     
     % West
@@ -53,12 +52,6 @@ function mins = find_colony_borders_threshed( tmp, threshed )
         if (~isempty(cmin_))
             cmin = midc - cmin_ + 1;
         end
-%         for ii = midc : -1 : cmin
-%             if (max( tmp(midr+(-w:w), ii) ) < ithresh)
-%                 cmin = ii-1;
-%                 break;
-%             end
-%         end
     end
     
     % East
@@ -69,12 +62,6 @@ function mins = find_colony_borders_threshed( tmp, threshed )
         if (~isempty(cmax_))
             cmax = midc + cmax_ - 1;
         end
-%         for ii = midc : cmax
-%             if (max( tmp(midr+(-w:w), ii) ) < ithresh)
-%                 cmax = ii;
-%                 break;
-%             end
-%         end
     end
     
     mins = [rmin rmax cmin cmax];

@@ -1,5 +1,14 @@
 %% Crop Background
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, April 2012
+%
+% Crops a plate image to the plate. 
+%
+% Parameters
+% ------------------------------------------------------------------------
+% offset <0>
+%  - the width of the margin surrounding the plate
+%
 
 function [plate crop] = crop_background( img, varargin )
     params = get_params( varargin{:} );

@@ -1,5 +1,27 @@
 %% Adjust Grid
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, December 2012
+%
+% Adjust the provided grid to more accurately fit to the underlying image.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% adjustmentWindow <round(grid.dims(1)/8)>
+%  - the radius of the 2D window of colonies used in the center of the
+%  plate to estimate initial grid positioning. 
+% fitFunction <@(r,c) [ones(numel(r),1) r(:) c(:)]>
+%  - a function handle taking row and column coordinates and returning the
+%  matrix used to estimate the linear relationship between grid coordinates
+%  and position.
+% numMiddleAdjusts <1>
+%  - the number of adjustments to perform using the middle of the plate
+% numFullAdjusts <1>
+%  - the number of adjustments to perform using colonies across the entire
+%  plate.
+% rowCoords & colCoords
+%  - the row and column coordinates of the colonies to use for fitting the
+%  grid to the image.
+%
 
 function grid = adjust_grid( plate, grid, varargin )
     params = default_param( varargin, ...
@@ -57,10 +79,9 @@ function grid = adjust_grid( plate, grid, varargin )
     % For each defined position, compute the true colony location
     % Compute the fit between the coordinates and locations
     % Extrapolate remaining colony locations
-    function [grid fitfact] = minor_adjust_grid( plate, grid, rrr, ccc )
+    function grid = minor_adjust_grid( plate, grid, rrr, ccc )
     
         % Setup
-        grid0 = grid;
         dims = grid.dims;
         win = grid.win;
         
@@ -88,10 +109,6 @@ function grid = adjust_grid( plate, grid, varargin )
         %% Compute grid position
         grid.r = reshape(Afun(rr(:),cc(:)) * rfact, size(grid.r));
         grid.c = reshape(Afun(rr(:),cc(:)) * cfact, size(grid.r));
-        
-        %% Estimate convergence
-        % Deprecated, but still here
-        fitfact = abs(grid.r(1,1) - grid0.r(1,1));
         
     end
     

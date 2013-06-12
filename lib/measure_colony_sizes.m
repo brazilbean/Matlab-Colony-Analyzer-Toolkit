@@ -5,6 +5,14 @@
 % Measures the sizes of colonies in the image.
 % First argument may be the image data or a file name.
 %
+% Usage
+% ------------------------------------------------------------------------
+% [sizes, grid] = measure_colony_sizes( plate_, ... )
+%  - PLATE_ is the plate image.
+%  - SIZES is a matrix containing the colony sizes (or an array of matrices
+%  containing colony sizes if multiple size functions were provided).
+%  - GRID is the colony grid struct generated and used in the analysis.
+%
 % Parameters
 % ------------------------------------------------------------------------
 % manualGrid <false>
@@ -16,7 +24,19 @@
 %  - the ThresholdMethod object used to determine and apply the
 %  pixel-intensity threshold to the image. The value passed should be an
 %  instance of an object that extends ThresholdMethod.
-% All parameters are passed to measure_colony_sizes.
+% sizeFunction <@threshold_bounded>
+%  - a function handle to the method that quantifies the colony size. This
+%  method accepts the plate, grid, and position index (of the colony to be
+%  quantified) and returns a single value. 
+%  A cell array of function handles can be provided, in which case a cell
+%  array of matrices will be returned (each containing the values returned
+%  by each function handle). 
+% loadGridCoords <false>
+%  - if true, the grid coordinate information will be loaded from the
+%  existing .info.mat file before the image is processed.
+%
+% All parameters are passed to auto_grid and manual_grid.
+% See also manual_grid, auto_grid, ThresholdMethod
 
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 

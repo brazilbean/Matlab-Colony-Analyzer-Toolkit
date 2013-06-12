@@ -1,5 +1,11 @@
 %% Estimate grid spacing
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, December 2012
+%
+% Estimate the grid spacing from an plate image
+%
+
+% Future improvements(?) under construction. Hard hats recommended. 
 
 function win = estimate_grid_spacing( plate )
 

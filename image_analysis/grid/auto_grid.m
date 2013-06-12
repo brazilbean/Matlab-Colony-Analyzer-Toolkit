@@ -1,5 +1,32 @@
 %% Auto Grid
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, May 2013
+%
+% Automatically determine the colony grid.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% midRows <[0.4 0.6]>
+%  - the row pixel percentiles defining the middle of the plate.
+% midCols <[0.4 0.6]>
+%  - the column pixel percentiles defining the middle of the plate.
+% midGridDims <[8 8]>
+%  - the dimensions of the grid fit to the middle of the plate (used to
+%  estimate initial grid orientation and position).
+% minSpotSize <10>
+%  - the number of pixels required for connected component to be considered
+%  a colony.
+% gridThresholdMethod <MinFrequency('offset', 5)>
+%  - the ThresholdMethod object used to provide an approximate, initial
+%  threshold used to determine colony positions.
+% sizeStandard <[1853 2765]>
+%  - the height and width standard used to estimate the plate orientation.
+%  The magnitude of these values is irrelevant - only the ratio is used.
+% gridSpacing <estimate_grid_spacing(plate)>
+%  - the distance, in pixels, between the centers of adjacent colonies.
+% dimensions <estimate_dimensions(plate, grid.win)>
+%  - the dimensions of the colony grid (rows x columns)
+% 
 
 function grid = auto_grid( plate, varargin )
     params = default_param( varargin, ...
