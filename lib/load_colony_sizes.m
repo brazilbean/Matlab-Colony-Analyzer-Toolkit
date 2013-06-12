@@ -1,20 +1,52 @@
 %% Load Colony Sizes
+% Matlab Colony Analyzer Toolkit
 % Gordon Bean, December 2012
+%
+% Load colony size data for a single file, array of files, or a directory
+% of files.
+%
+% Usage
+% ------------------------------------------------------------------------
+% [cs files] = load_colony_sizes( filename, varargin )
+%  FILENAME may be a single filename, in which case CS will be 1xN vector
+%  where N is the number of colonies in the grid.
+%
+%  FILENAME may be an array of files, in which case CS will be an MxN
+%  matrix where M is the number of files in the array.
+%
+%  FILENAME may also be the directory path, in which case all files with
+%  the specified extension (see Parameters below) are loaded, returning an
+%  MxN matrix, where M is the number of such files in the directory.
+%
+% Parameters
+% ------------------------------------------------------------------------
+% extension <'.cs.txt'>
+%  - The file extension indicating which files to load. 
+%
 
 function [cs files] = load_colony_sizes( filename, varargin )
     params = default_param(varargin, ...
         'extension', '.cs.txt');
 
     ext = ['*' params.extension];
-    if (isdir(filename))
-        % Directory of files
-        files = dirfiles( filename, ext );
+    if iscell(filename) || isdir(filename)
+        % Directory or array of files
+        if isdir(filename)
+            % Directory of files
+            files = dirfiles( filename, ext );
+        else
+            % Cell array of files
+            files = filename;
+        end
+        
+        % Load the data for each file
         n = length(files);
         cs = cell(n,1);
-        
         for ff = 1 : n
             cs{ff} = load_file( files{ff} );
         end
+        
+        % Format output
         if isstruct(cs{1})
             % Multiple measurements returned
             % Combine array of structs into struct with array fields
@@ -24,15 +56,18 @@ function [cs files] = load_colony_sizes( filename, varargin )
                 cs_.(ff{:}) = cat(1, cs.(ff{:}));
             end
             cs = cs_;
+            
         else
             % Single measurement returned
             cs = cat(1, cs{:});
+            
         end
         
     else
         % Single file
         cs = load_file( filename );
         files = {filename};
+        
     end
     
     function cs = load_file( filename )
