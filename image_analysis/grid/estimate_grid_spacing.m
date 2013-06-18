@@ -78,8 +78,14 @@ function win = estimate_grid_spacing( plate )
         pks = pks(1:ppos-1);
         scales = scales(1:ppos-1);
 %         pks = pks(scales > 0.8); % Changed to 0.5 on May 17, 2013.
-        pks = pks(scales > 0.5);
+        pks2 = pks(scales > 0.5);
 
+        if isempty(pks2)
+            % The peak is not very tall, lower the threshold.
+            pks2 = pks(scales > 0.4);
+        end
+        
+        pks = pks2;
         win = floor(mean(pks ./ (1:length(pks))'));
 
     end
