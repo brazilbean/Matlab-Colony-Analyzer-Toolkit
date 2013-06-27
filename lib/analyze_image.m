@@ -14,22 +14,7 @@
 
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...
-    'outputExtension', '.cs.txt', ...
-    'measurementLabels', {'area'});
-    
-    % Check measurement labels - should be in cell array
-    if ~iscell(params.measurementlabels)
-        params.measurementlabels = {params.measurementlabels};
-    end
-    if isfield(params, 'sizefunction') && length(params.sizefunction) > 1
-        % More than one measurement expected -> make sure the user supplied
-        % more than one measurement label.
-        
-        if ~iscell(params.sizefunction) || ...
-           length(params.measurementlabels) ~= length(params.sizefunction)
-            error('Mismatched number of measurement functions and labels');
-        end
-    end
+    'outputExtension', '.cs.txt' );
     
     %% Measure colony sizes
     [cs grid] = measure_colony_sizes( filename, varargin{:} );
@@ -39,6 +24,19 @@ function analyze_image( filename, varargin )
     end
     
     %% Print .TXT file
+    % Determine measurement labels
+    if isfield(params, 'metric')
+        if ~iscell(params.metric)
+            params.metric = {params.metric};
+        end
+        labels = cell(size(params.metric));
+        for ii = 1 : length(params.metric)
+            labels{ii} = params.metric{ii}.label;
+        end
+    else
+        labels = {'size'};
+    end
+    
     % Format measurement data
     if iscell(cs)
         tmp = cellfun(@in, cs, 'uniformOutput', 0);
@@ -48,11 +46,9 @@ function analyze_image( filename, varargin )
     end
     
     [rr cc] = ind2sub( grid.dims, 1 : prod(grid.dims) );
-    
     fid = fopen( [filename params.outputextension], 'wt');
-    n = length(params.measurementlabels);
-    fprintf(fid, ['row\tcolumn' repmat('\t%s',[1 n]) '\n'], ...
-        params.measurementlabels{:});
+    n = length(labels);
+    fprintf(fid, ['row\tcolumn' repmat('\t%s',[1 n]) '\n'], labels{:});
     iprintf(fid,['%i\t%i' repmat('\t%f',[1 n]) '\n'], rr(:), cc(:), tmpcs);
     
     fclose(fid);

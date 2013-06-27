@@ -48,7 +48,8 @@ function grid = adjust_grid( plate, grid, varargin )
             rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
             ccc = grid.dims(2)/2 - aw : grid.dims(2)/2 + aw + 1;
 
-            grid = minor_adjust_grid( plate, grid, rrr, ccc );
+%             grid = minor_adjust_grid( plate, grid, rrr, ccc );
+            grid = polar_adjust_grid( plate, grid, rrr, ccc );
 
         end
 
@@ -58,7 +59,8 @@ function grid = adjust_grid( plate, grid, varargin )
             rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
             ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
 
-            grid = minor_adjust_grid( plate, grid, rrr, ccc );
+%             grid = minor_adjust_grid( plate, grid, rrr, ccc );
+            grid = polar_adjust_grid( plate, grid, rrr, ccc );
         end
     end
     
@@ -75,6 +77,55 @@ function grid = adjust_grid( plate, grid, varargin )
     
     %% ---- Subroutines ---- %%
     
+    %% Polar Adjust Grid
+    function grid = polar_adjust_grid( plate, grid, rrr, ccc )
+        % Setup
+        win = grid.win;
+        
+        [rtmp ctmp] = deal( nan(size(grid.r)) );
+
+        %% Find true colony locations
+        for rr = rrr(:)'
+            for cc = ccc(:)'
+                [rtmp(rr,cc) ctmp(rr,cc) ] = adjust_spot ...
+                    (plate, grid.r(rr,cc), grid.c(rr,cc), win);
+            end
+        end
+        
+        %% Conver to polar
+        % Set reference as top-left coordinate
+        [r0, c0] = deal(rtmp(1), ctmp(1));
+
+        rpos = rtmp - r0;
+        cpos = ctmp - c0;
+
+        % Compute rho (radius)
+        rho = sqrt(rpos.^2 + cpos.^2);
+
+        % Compute theta
+        theta = atan2(-rpos, cpos); 
+         % -rpos because rows are counted down
+        
+        %% Compute expected positions (in polar)
+        [cc, rr] = meshgrid(0:grid.dims(2)-1, 0:grid.dims(1)-1);
+
+        rho_exp = sqrt(rr.^2 + cc.^2);
+        theta_exp = atan2(-rr, cc);
+
+        % Update theta
+        theta_fact = nanmean(theta(:) - theta_exp(:));
+
+        % Update rho
+        rho_fact = slope(rho_exp(:), rho(:), true);
+
+        %% Return cartesian, updated coordinates
+        grid.r = ...
+            -rho_fact * rho_exp .* sin(theta_exp + theta_fact) + r0;
+        grid.c = ...
+            rho_fact * rho_exp .* cos(theta_exp + theta_fact) + c0;
+        
+    end
+
     %% Minor Adjust Grid
     % For each defined position, compute the true colony location
     % Compute the fit between the coordinates and locations

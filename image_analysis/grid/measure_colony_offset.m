@@ -17,6 +17,9 @@ function off = measure_colony_offset( box, varargin )
     sit = (median(min(sbox)) + max(sbox(:)))/2;
     it = (it + sit) / 2;
     
+%     imgax(box>it);
+%     input('...');
+    
     %% Determine the colony location
     stats = regionprops( box > it, 'area', 'centroid');
     cents = cat(1, stats.Centroid);

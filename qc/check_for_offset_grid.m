@@ -5,8 +5,8 @@ function check = check_for_offset_grid( data, dims )
 
     d2 = reshape(data, [size(data,1), dims]);
     
-    [r,~] = find(sum(d2(:,[1 end],:)<50,3)>dims(1));
-    [c,~] = find(sum(d2(:,:,[1 end])<50,2)>dims(2));
+    [r,~] = find(sum(d2(:,[1 end],:)<50,3)>=dims(1));
+    [c,~] = find(sum(d2(:,:,[1 end])<50,2)>=dims(2));
 
     check = [r; c];
 

@@ -38,7 +38,7 @@ function info = load_directory_qc_info( imagedir )
     end
     
     %% Offset grids
-    data = load_colony_sizes( imagedir );
-    info.offset_grid = check_for_offset_grid( data, grids{1}.dims );
-    
+%     data = load_colony_sizes( imagedir );
+%     info.offset_grid = check_for_offset_grid( data, grids{1}.dims );
+%     
 end

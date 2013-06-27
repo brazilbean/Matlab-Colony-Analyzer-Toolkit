@@ -1,4 +1,4 @@
-%% Background offset - a threshold based on the background intensity
+%% Half Mode+Max - a threshold based on the background intensity
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, May 2013
 %
@@ -17,35 +17,18 @@
 %
 % See also ThresholdMethod
 
-classdef BackgroundOffset < ThresholdMethod
+classdef HalfModeMax < BackgroundOffset
     properties
-        offset;
-        fullplate;
-        background_max;
+        % All inherited
     end
     
     methods
-        function this = BackgroundOffset( varargin )
-            this = this@ThresholdMethod();
+        function this = HalfModeMax( varargin )
+            this = this@BackgroundOffset();
             this = default_param(this, ...
-                'offset', 1.25, ...
+                'offset', 1, ...
                 'fullplate', false, ...
                 'background_max', nan, varargin{:} );
-        end
-        
-        function thrplate = apply_threshold(this, plate, grid)
-            if this.fullplate && isnan(this.background_max)
-                % Calibrate background_max
-                this = this.calibrate(plate, grid);
-            end
-            thrplate = apply_threshold@ThresholdMethod ...
-                (this, plate, grid);
-        end
-        
-        function this = calibrate(this, plate, grid)
-            mid = get_box(plate, mean(grid.r(:)), mean(grid.c(:)), ...
-                    grid.win * 5);
-                this.background_max = (min(mid(:)) + max(mid(:))) / 2;
         end
         
         function it = determine_threshold(this, box)
@@ -60,11 +43,13 @@ classdef BackgroundOffset < ThresholdMethod
             else
                 % Estimate background
                 bg = parzen_mode(box(:));
-    
+
             end
-            
+            % Estimate max
+            mx = max(box(:));
+
             % Return threshold
-            it = bg * this.offset;
+            it = (bg + mx)/2 * this.offset;
         end
     end
     

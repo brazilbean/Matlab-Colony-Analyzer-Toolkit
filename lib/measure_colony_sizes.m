@@ -15,16 +15,19 @@
 %
 % Parameters
 % ------------------------------------------------------------------------
-% manualGrid <false>
-%  - if true, uses manual_grid to determine the grid location
+% grid 
+%  - May be either a struct or a grid-fitting method
+%   If it is a struct, that struct will be used as the grid
+%   If it is a grid-fitting method, that method will be used to determine
+%    the grid.
 % plateLoader <PlateLoader()>
 %  - the PlateLoader object used to load the images. The value passed
 %  should be an instance of an object that extends PlateLoader.
-% thresholdMethod <background_offset()>
+% threshold <background_offset()>
 %  - the ThresholdMethod object used to determine and apply the
 %  pixel-intensity threshold to the image. The value passed should be an
 %  instance of an object that extends ThresholdMethod.
-% sizeFunction <@threshold_bounded>
+% metric <@threshold_bounded>
 %  - a function handle to the method that quantifies the colony size. This
 %  method accepts the plate, grid, and position index (of the colony to be
 %  quantified) and returns a single value. 
@@ -41,14 +44,10 @@
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
     params = default_param( varargin, ...
-        'manualGrid', false, ...
         'plateLoader', PlateLoader(), ...
-        'thresholdMethod', BackgroundOffset(), ... 
-        'sizeFunction', @threshold_bounded, ...
+        'threshold', BackgroundOffset(), ... 
+        'metric', ColonyArea(), ...
         'loadGridCoords', false );
-    
-    % Make sure defaults are passed to other functions
-    varargin = param_pairs( params );
     
     %% Load Plate
     if (ischar( plate_ ))
@@ -68,7 +67,14 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
     
     %% Determine grid
     if isfield(params, 'grid')
-        grid = params.grid;
+        if isstruct(params.grid)
+            % An actual grid struct was provided, use it
+            grid = params.grid;
+        else
+            % Assume a grid-fitting method was provided
+            grid = params.grid(plate);
+        end
+        
     elseif params.loadgridcoords
         % Load the grid coordinates from file
         if ~ischar(plate_)
@@ -85,48 +91,39 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
         grid.factors = grid_.factors;
         grid.info.theta = grid_.info.theta;
         grid.info.fitfunction = grid_.info.fitfunction;
+        grid.info.loadgridcoords = true;
         
     else
-        if (params.manualgrid)
-            % Manual Grid
-            grid = manual_grid( plate, varargin{:} );
-            if (isempty(grid))
-                sizes = nan;
-                grid = struct;
-                return;
-            end
-
-        else
-            % Auto Grid
-            grid = auto_grid( plate, varargin{:} );
-            
-        end
+        % Use the default grid method
+        grid = AutoGrid().fit_grid(plate);
+        
     end
     
     grid.info.PlateLoader = params.plateloader;
     
-    %% Intensity Thresholds
+    %% Intensity Threshold
     if (~isfield(grid, 'thresh'))
-        grid.thresh = params.thresholdmethod.apply_threshold(plate, grid);
-        grid.info.ThresholdMethod = params.thresholdmethod;
+        grid.thresh = params.threshold.apply_threshold(plate, grid);
+        grid.info.Threshold = params.threshold;
     end
     
     %% Iterate over grid positions and measure colonies
-    if iscell(params.sizefunction)
-        sizes = cell(size(params.sizefunction));
+    if iscell(params.metric)
+        % Multiple quantification methods
+        sizes = cell(size(params.metric));
         for jj = 1 : numel(sizes)
             sizes{jj} = nan(grid.dims);
             for ii = 1 : prod(grid.dims)
-                sizes{jj}(ii) = params.sizefunction{jj}( plate, grid, ii );
+                sizes{jj}(ii) = params.metric{jj}( plate, grid, ii );
             end
         end
     else
+        % Single quantification method
         sizes = nan(grid.dims);
         for ii = 1 : prod(grid.dims)
-            sizes(ii) = params.sizefunction( plate, grid, ii );
+            sizes(ii) = params.metric( plate, grid, ii );
         end
     end
-    grid.params = params;
-    grid.info.SizeFunction = params.sizefunction;
+    grid.info.metric = params.metric;
     
 end

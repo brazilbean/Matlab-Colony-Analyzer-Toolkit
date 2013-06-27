@@ -6,7 +6,7 @@ classdef LocalFitted < ThresholdMethod
         bins;
         fdr;
         fast;
-        fullplate;
+        full;
         num_background_iters;
         upper_threshold_function;
     end
