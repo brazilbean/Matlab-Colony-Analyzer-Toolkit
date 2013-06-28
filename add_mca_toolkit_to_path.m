@@ -11,7 +11,7 @@ function add_mca_toolkit_to_path
     % Add directories
     addpath( genpath([pp '/cs_analysis']) );
     addpath( genpath([pp '/image_analysis']) );
-    addpath( [pp '/lib'] );
+    addpath( genpath([pp '/lib']) );
     addpath( [pp '/qc'] );
 
 end

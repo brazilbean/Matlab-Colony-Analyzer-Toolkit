@@ -39,7 +39,9 @@
 %  existing .info.mat file before the image is processed.
 %
 % All parameters are passed to auto_grid and manual_grid.
-% See also manual_grid, auto_grid, ThresholdMethod
+%
+% See also OffsetAutoGrid, ManualGrid, ThresholdMethod, PlateLoader,
+% threshold_bounded
 
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
@@ -95,7 +97,7 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
         
     else
         % Use the default grid method
-        grid = AutoGrid().fit_grid(plate);
+        grid = OffsetAutoGrid().fit_grid(plate);
         
     end
     
