@@ -32,7 +32,8 @@ analyze_image( file )
 ls([file '*'])
 
 % The .cs.txt file contains the colony size information
-% The .info.mat file contains the 
+% The .info.mat file contains the colony grid position information
+
 %% Look at the grid alignment and pixel intensity threshold
 view_plate_image(file, 'applyThreshold', true, 'showGrid', true)
 
@@ -67,7 +68,9 @@ pseudoplate(colsizes(1,:))
 colormap jet
 
 
-%% Help?
+%% Help and useful files
 help analyze_image
 help analyze_directory_of_images
 help measure_colony_sizes
+
+help load plate
