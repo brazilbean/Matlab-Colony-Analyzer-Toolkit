@@ -38,30 +38,19 @@ classdef OffsetAutoGrid < AutoGrid
         end
         
         function grid = perform_initial_adjustment(this, plate, grid)
-            % I give it two rounds of fitting to improve accuracy
-            ri = (1 : this.midgriddims(1));
-            ci = (1 : this.midgriddims(2));
-
-            % Define maximum coordinates for fitting
-            rie = find(max(grid.r,[],2)+grid.win < size(plate,1),1,'last');
-            cie = find(max(grid.c,[],1)+grid.win < size(plate,2),1,'last');
-
-            % Adjust grid
+            
+            % Extrapolate grid
             grid = adjust_grid( plate, grid, ...
-                'rowcoords', 1 : min(ri(end),rie),...
-                'colcoords', 1:min(ci(end),cie) );
-
-            % Define maximum coordinates for 2nd round of fitting 
-            rie = find(max(grid.r,[],2)+grid.win < size(plate,1),1,'last');
-            cie = find(max(grid.c,[],1)+grid.win < size(plate,2),1,'last');
-
-            % Adjust grid 2nd time
-            %  make sure the coordinates fit in the plate
-            if rie > ri(end)*2 && cie > ci(end)*2
-                grid = adjust_grid( plate, grid, ...
-                    'rowcoords', 1 : 2 : min(ri(end)*2,rie), ...
-                    'colcoords', 1 : 2 : min(ci(end)*2,cie) );
-            end
+                'positions', find(~isnan(grid.r)), ...
+                'method', 'polar');
+            
+            % Fit diagonal of grid
+            [cc, rr] = meshgrid(0:grid.dims(2)-1, 0:grid.dims(1)-1);
+            foo = round(grid.dims(1)./grid.dims(2) * cc) == rr;
+            grid = adjust_grid( plate, grid, ...
+                'positions', find(foo,grid.dims(2)), ...
+                'method', 'polar');
+            
         end
         
         function overlap = determine_overlap(this, plate, grid)
@@ -116,7 +105,7 @@ classdef OffsetAutoGrid < AutoGrid
         
         function grid = make_final_adjustments(this, plate, grid)
             % Find quadrant of grid with known locations
-            ii = find( ~isnan(grid.r) );
+            ii = find( ~isnan(grid.r), 1 );
             [ris, cis] = ind2sub( grid.dims, ii );
 
             % Extrapolate full grid positions based on the known locations
@@ -125,6 +114,7 @@ classdef OffsetAutoGrid < AutoGrid
                 'colcoords', cis : 2 : grid.dims(2) );
 
             % Final adjustment over the full grid
+            grid = adjust_grid( plate, grid, 'numMiddleAdjusts', 0 );
             grid = adjust_grid( plate, grid, 'numMiddleAdjusts', 0 );
         end
     end

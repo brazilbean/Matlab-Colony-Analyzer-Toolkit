@@ -35,7 +35,7 @@ function out = border_median( data, varargin )
         else
             % Estimate median border filter
             dd = params.depth;
-            out = ones(size(data));
+            out = ones(size(data))*nanmedian(data(:));
             
             for d = 1 : dd
                 % Row medians

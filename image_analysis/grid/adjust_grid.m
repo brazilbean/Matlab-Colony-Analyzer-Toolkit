@@ -25,17 +25,27 @@
 
 function grid = adjust_grid( plate, grid, varargin )
     params = default_param( varargin, ...
+        'method', 'linear', ...
         'adjustmentWindow', round(grid.dims(1)/8), ...
         'fitfunction', @(r,c) [ones(numel(r),1) r(:) c(:)], ...
         'numMiddleAdjusts', 1, ...
         'numFullAdjusts', 1 );
     aw = params.adjustmentwindow;
     
+    methods.linear = @minor_adjust_grid;
+    methods.polar = @polar_adjust_grid;
+    
     %% Pre-defined coordinates or default coordinates?
-    if isfield(params, 'rowcoords') && isfield(params, 'colcoords')
+    if (isfield(params, 'rowcoords') && isfield(params, 'colcoords')) ...
+            || isfield(params, 'positions')
         % Use pre-defined coordinates for fitting
-        grid = minor_adjust_grid( plate, grid, ...
-            params.rowcoords, params.colcoords );
+        
+        if ~isfield(params, 'positions')
+            [cfoo, rfoo] = meshgrid(params.colcoords, params.rowcoords);
+            params.positions = sub2ind(grid.dims, rfoo, cfoo);
+        end
+        grid = methods.(lower(params.method))...
+            ( plate, grid, params.positions );
         
     else
         % Use default coordinates for fitting
@@ -47,9 +57,11 @@ function grid = adjust_grid( plate, grid, varargin )
 
             rrr = grid.dims(1)/2 - aw : grid.dims(1)/2 + aw + 1;
             ccc = grid.dims(2)/2 - aw : grid.dims(2)/2 + aw + 1;
+            [cfoo, rfoo] = meshgrid(ccc, rrr);
+            inds = sub2ind(grid.dims, rfoo, cfoo);
 
-%             grid = minor_adjust_grid( plate, grid, rrr, ccc );
-            grid = polar_adjust_grid( plate, grid, rrr, ccc );
+            grid = methods.(lower(params.method))...
+                ( plate, grid, inds );
 
         end
 
@@ -58,9 +70,12 @@ function grid = adjust_grid( plate, grid, varargin )
         for iter = 1 : params.numfulladjusts
             rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
             ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
+            [cfoo, rfoo] = meshgrid(ccc, rrr);
+            inds = sub2ind(grid.dims, rfoo, cfoo);
 
-%             grid = minor_adjust_grid( plate, grid, rrr, ccc );
-            grid = polar_adjust_grid( plate, grid, rrr, ccc );
+            grid = methods.(lower(params.method))...
+                ( plate, grid, inds );
+        
         end
     end
     
@@ -68,34 +83,33 @@ function grid = adjust_grid( plate, grid, varargin )
     % Update the grid spacing
     grid.win = round(median(diff(grid.c( grid.dims(1)/2, :))));
     
-    % Update the grid orientation
-    grid.info.theta = pi/2 - atan2 ...
-        ( grid.factors.row(2), grid.factors.row(3) );
-    
     % Include the funciton used for fitting the grid
     grid.info.fitfunction = params.fitfunction;
     
     %% ---- Subroutines ---- %%
     
     %% Polar Adjust Grid
-    function grid = polar_adjust_grid( plate, grid, rrr, ccc )
+    function grid = polar_adjust_grid( plate, grid, inds )
         % Setup
         win = grid.win;
         
         [rtmp ctmp] = deal( nan(size(grid.r)) );
 
         %% Find true colony locations
-        for rr = rrr(:)'
-            for cc = ccc(:)'
-                [rtmp(rr,cc) ctmp(rr,cc) ] = adjust_spot ...
-                    (plate, grid.r(rr,cc), grid.c(rr,cc), win);
-            end
+        for ii = inds(:)'
+            [rtmp(ii), ctmp(ii)] = adjust_spot ...
+                ( plate, grid.r(ii), grid.c(ii), win);
+        end
+        if all(isnan(rtmp(:))) || all(isnan(ctmp(:)))
+            error('Grid adjustment resulted in NaN grid.');
         end
         
         %% Conver to polar
         % Set reference as top-left coordinate
-        [r0, c0] = deal(rtmp(1), ctmp(1));
+        ii = find(~isnan(rtmp),1);
+        [r0, c0] = deal(rtmp(ii), ctmp(ii));
 
+        % Set top-left as reference
         rpos = rtmp - r0;
         cpos = ctmp - c0;
 
@@ -107,16 +121,19 @@ function grid = adjust_grid( plate, grid, varargin )
          % -rpos because rows are counted down
         
         %% Compute expected positions (in polar)
-        [cc, rr] = meshgrid(0:grid.dims(2)-1, 0:grid.dims(1)-1);
-
+        [cc, rr] = meshgrid(1:grid.dims(2), 1:grid.dims(1));
+        [r0i, c0i] = ind2sub(grid.dims, ii);
+        rr = rr - r0i;
+        cc = cc - c0i;
+        
         rho_exp = sqrt(rr.^2 + cc.^2);
         theta_exp = atan2(-rr, cc);
 
         % Update theta
-        theta_fact = nanmean(theta(:) - theta_exp(:));
+        theta_fact = nanmedian(theta(:) - theta_exp(:));
 
         % Update rho
-        rho_fact = slope(rho_exp(:), rho(:), true);
+        rho_fact = nanmedian(rho(:) ./ rho_exp(:));
 
         %% Return cartesian, updated coordinates
         grid.r = ...
@@ -124,13 +141,19 @@ function grid = adjust_grid( plate, grid, varargin )
         grid.c = ...
             rho_fact * rho_exp .* cos(theta_exp + theta_fact) + c0;
         
+        grid.info.theta = theta_fact;
+        
+        if all(isnan(grid.r(:))) || all(isnan(grid.c(:)))
+            error('Grid adjustment resulted in NaN grid.');
+        end
+        
     end
 
     %% Minor Adjust Grid
     % For each defined position, compute the true colony location
     % Compute the fit between the coordinates and locations
     % Extrapolate remaining colony locations
-    function grid = minor_adjust_grid( plate, grid, rrr, ccc )
+    function grid = minor_adjust_grid( plate, grid, inds )
     
         % Setup
         dims = grid.dims;
@@ -139,13 +162,11 @@ function grid = adjust_grid( plate, grid, varargin )
         [rtmp ctmp] = deal( nan(size(grid.r)) );
 
         %% Find true colony locations
-        for rr = rrr(:)'
-            for cc = ccc(:)'
-                [rtmp(rr,cc) ctmp(rr,cc) ] = adjust_spot ...
-                    (plate, grid.r(rr,cc), grid.c(rr,cc), win);
-            end
+        for ii = inds(:)'
+            [rtmp(ii), ctmp(ii)] = adjust_spot ...
+                ( plate, grid.r(ii), grid.c(ii), win);
         end
-
+        
         %% Estimate grid parameters
         iii = in(~isnan(rtmp) & ~isnan(ctmp));
         [cc, rr] = meshgrid( 1 : dims(2), 1 : dims(1) );
@@ -161,11 +182,22 @@ function grid = adjust_grid( plate, grid, varargin )
         grid.r = reshape(Afun(rr(:),cc(:)) * rfact, size(grid.r));
         grid.c = reshape(Afun(rr(:),cc(:)) * cfact, size(grid.r));
         
+        % Update the grid orientation
+        grid.info.theta = pi/2 - atan2 ...
+            ( grid.factors.row(2), grid.factors.row(3) );
+    
     end
     
     %% Adjust spot
     % Determine the true location of the given colony
     function [rpos cpos] = adjust_spot( plate, rpos, cpos, win )
+        if (rpos + win > size(plate,1) || cpos + win > size(plate,2) ...
+                || rpos - win < 1 || cpos - win < 1 ...
+                || isnan(rpos) || isnan(cpos))
+            rpos = nan;
+            cpos = nan;
+            return
+        end
         
         % Get the 2D window around the colony
         box = get_box( plate, rpos, cpos, win );
