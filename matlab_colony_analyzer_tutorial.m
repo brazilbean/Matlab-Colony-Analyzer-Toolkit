@@ -5,9 +5,10 @@
 % I suggest making a copy of this tutorial (or sections thereof) for
 % analyzing you own images.
 
-% This toolkit depends on the MATLAB Image Processing Toolbox.
-% If you would like to use the toolkit and do not have access to the Image
-% Processing Toolbox, please email me or comment on the Github site:
+% This toolkit depends on the MATLAB Image Processing Toolbox and the
+% Statistics Toolbox.
+% If you would like to use the toolkit and do not have access to these 
+% toolboxes, please email me or comment on the Github site:
 %
 % https://github.com/brazilbean/Matlab-Colony-Analyzer-Toolkit
 %
@@ -23,7 +24,8 @@ add_mca_toolkit_to_path
 
 %% Analyze a single image
 % Define which file you want to analyze
-file = 'sample_images/6144_12hrs/6144_12hrs_0001.JPG';
+toolkitdir = '~/Downloads/Matlab-Colony-Analyzer-Toolkit-master/';
+file = [toolkitdir 'sample_images/6144_12hrs/6144_12hrs_0001.JPG'];
 
 % Analyze the image
 analyze_image( file )
