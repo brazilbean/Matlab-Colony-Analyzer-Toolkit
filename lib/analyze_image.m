@@ -14,7 +14,8 @@
 
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...
-    'outputExtension', '.cs.txt' );
+    'outputExtension', '.cs.txt', ...
+    'binaryExtension', '.binary');
     
     %% Measure colony sizes
     [cs grid] = measure_colony_sizes( filename, varargin{:} );
@@ -56,6 +57,9 @@ function analyze_image( filename, varargin )
     %% Save grid data
     grid.info.file = fullpath(filename);
     save( [filename '.info.mat'], '-struct', 'grid' );
+    
+    %% Save binary image
+    imwrite(grid.thresh, [filename params.binaryextension], 'png');
     
     %% Function: fullpath
     function file = fullpath( file )

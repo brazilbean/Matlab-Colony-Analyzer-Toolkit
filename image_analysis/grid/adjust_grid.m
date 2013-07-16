@@ -175,8 +175,8 @@ function grid = adjust_grid( plate, grid, varargin )
         rfact = Afun(rr(iii),cc(iii)) \ rtmp(iii);
         cfact = Afun(rr(iii),cc(iii)) \ ctmp(iii);
 
-        grid.factors.row = rfact;
-        grid.factors.col = cfact;
+        grid.info.factors.row = rfact;
+        grid.info.factors.col = cfact;
     
         %% Compute grid position
         grid.r = reshape(Afun(rr(:),cc(:)) * rfact, size(grid.r));
@@ -184,7 +184,7 @@ function grid = adjust_grid( plate, grid, varargin )
         
         % Update the grid orientation
         grid.info.theta = pi/2 - atan2 ...
-            ( grid.factors.row(2), grid.factors.row(3) );
+            ( grid.info.factors.row(2), grid.info.factors.row(3) );
     
     end
     
