@@ -13,7 +13,7 @@ function ax = view_binary_image( filename )
     axis image
     colormap gray
 
-    if (nargout < 0)
+    if (nargout < 1)
         clear ax;
     end
 end
