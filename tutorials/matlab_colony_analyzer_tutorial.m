@@ -1,10 +1,10 @@
 %% Matlab Colony Analyzer Tutorial
 % Gordon Bean, June 2013
 % gbean@ucsd.edu
-
+%
 % I suggest making a copy of this tutorial (or sections thereof) for
 % analyzing you own images.
-
+%
 % This toolkit depends on the MATLAB Image Processing Toolbox and the
 % Statistics Toolbox.
 % If you would like to use the toolkit and do not have access to these 
@@ -14,6 +14,11 @@
 %
 % This toolkit is under continued expansion and development. Check back at
 % the Github repository for additional features and bug fixes.
+%
+%
+% This tutorial provides the basics for analyzing images of systematically-
+% pinned microbrial plates. I recommend that you look at the accompanying
+% tutorials for information on how to customize your analysis.
 
 %% Add the toolkit to your path
 addpath ./ % add the toolkit to your path

@@ -138,4 +138,16 @@ imagesc(box); axis image
 
 % See get_box.m for more information.
 
+%% Specifying the grid algorithm for image analysis
+% You indicate which grid algorithm you want to use via the 'grid'
+% parameter:
+
+file = 'sample_images/1536_24hrs/1536_24hrs_0001.JPG';
+analyze_image(file, 'grid', ManualGrid('dimensions', [32 48]));
+
+% In this example, a ManualGrid algorithm, with pre-specified dimensions,
+% will be used to analyze the sample image.
+
+
+
 
