@@ -15,7 +15,8 @@ function add_mca_toolkit_to_path
     addpath( [pp '/qc'] );
 
     % Check for Gordon's bag-o-tricks
-    if ~exist('in.m', 'file') || ~exist('dirfiles.m','file')
+    if ~exist('in.m', 'file') || ~exist('dirfiles.m','file') ...
+            || ~exist('stack_fun.m','file')
         warning(['The Matlab Colony Analyzer Toolkit requires the ' ...
             'Bean Matlab Toolkit, which may be found at: \n' ...
             'https://github.com/brazilbean/bean-matlab-toolkit']);
