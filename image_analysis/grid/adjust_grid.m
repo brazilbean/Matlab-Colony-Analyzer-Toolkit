@@ -104,7 +104,7 @@ function grid = adjust_grid( plate, grid, varargin )
             error('Grid adjustment resulted in NaN grid.');
         end
         
-        %% Conver to polar
+        %% Convert to polar
         % Set reference as top-left coordinate
         ii = find(~isnan(rtmp),1);
         [r0, c0] = deal(rtmp(ii), ctmp(ii));
