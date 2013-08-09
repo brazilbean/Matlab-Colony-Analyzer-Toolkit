@@ -102,9 +102,7 @@ function win = estimate_grid_spacing( plate )
         thresh = (median(min(box)) + median(max(box)))/2;
         
         %% Identify spot centers
-        stats = regionprops( box > thresh, 'centroid', 'area' );
-        cents = cat(1, stats.Centroid);
-        areas = cat(1, stats.Area );
+        [cents, areas] = component_props(box > thresh);
         cents = cents( areas > 10, : );
 
         %% Compute distances

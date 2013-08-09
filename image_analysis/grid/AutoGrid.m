@@ -103,11 +103,14 @@ classdef AutoGrid < Closure
             itmid = this.gridthresholdmethod.determine_threshold(mid);
 
             % Find colony locations
-            stats = regionprops( imclearborder(mid > itmid), ...
-                'area', 'centroid' );
-            cents = cat(1, stats.Centroid);
-            areas = cat(1, stats.Area);
-            cents = cents(areas > this.minspotsize,:);
+            [inds, labs] = label_components( mid > itmid );
+            [cents, areas] = component_props( mid > itmid, inds );
+            
+            % Ignore colonies on the border or that are too small
+            lab_nix = unique([labs([1 end],:) labs(:,[1 end])']);
+            lab_nix = in(lab_nix, @(x) x ~= 0);
+            lab_keep = fil(true(size(areas)), lab_nix, false);
+            cents = cents(lab_keep & areas > this.minspotsize,:);
 
             % Find the upper-left colony and determine 
             %  it's location in the plate

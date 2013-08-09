@@ -21,9 +21,7 @@ function off = measure_colony_offset( box, varargin )
 %     input('...');
     
     %% Determine the colony location
-    stats = regionprops( box > it, 'area', 'centroid');
-    cents = cat(1, stats.Centroid);
-    areas = cat(1, stats.Area);
+    [cents, areas] = component_props( box > it );
     cents = cents(areas>params.minspotsize,:);
     
     % Find the colony that is closest to the center
