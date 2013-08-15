@@ -160,9 +160,9 @@ classdef AutoGrid < Closure
             % Compute linear indices of grid
             [cc,rr] = meshgrid(1:grid.dims(2), 1:grid.dims(1));
             rtmp = grid.info.fitfunction(rr(:),cc(:)) * ...
-                ([0 1 1]' .* grid.factors.row);
+                ([0 1 1]' .* grid.info.factors.row);
             ctmp = grid.info.fitfunction(rr(:),cc(:)) * ...
-                ([0 1 1]' .* grid.factors.col);
+                ([0 1 1]' .* grid.info.factors.col);
 
             rtmp = round(rtmp);
             rtmp = rtmp - min(rtmp(:)) + 1;
