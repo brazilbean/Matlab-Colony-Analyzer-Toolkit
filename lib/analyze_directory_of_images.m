@@ -12,6 +12,10 @@
 %  - if true, uses matlabpool to process directory on multiple cores
 %
 % All parameters are passed to analyze_image.
+%
+% See also matlab_colony_analyzer_tutorial, full_analysis_workflow_tutorial
+
+% (c) Gordon Bean, August 2013
 
 function analyze_directory_of_images( imagedir, varargin )
     params = get_params( varargin{:} );

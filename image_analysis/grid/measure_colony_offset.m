@@ -1,5 +1,7 @@
 %% Measure Colony Offset
 % Gordon Bean, May 2013
+%
+% offset = [row, col]
 
 function off = measure_colony_offset( box, varargin )
     params = default_param( varargin, ...

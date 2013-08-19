@@ -15,6 +15,8 @@
 %  image will not be rotated.
 %
 
+% (c) Gordon Bean, August 2013
+
 classdef PlateLoader
     properties
         channel

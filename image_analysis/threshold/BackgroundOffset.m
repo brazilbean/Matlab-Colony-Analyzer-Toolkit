@@ -17,6 +17,8 @@
 %
 % See also ThresholdMethod
 
+% (c) Gordon Bean, August 2013
+
 classdef BackgroundOffset < ThresholdMethod
     properties
         offset;

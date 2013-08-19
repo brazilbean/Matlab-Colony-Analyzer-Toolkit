@@ -43,6 +43,8 @@
 % See also OffsetAutoGrid, ManualGrid, ThresholdMethod, PlateLoader,
 % threshold_bounded
 
+% (c) Gordon Bean, August 2013
+
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
     params = default_param( varargin, ...

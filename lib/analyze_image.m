@@ -12,6 +12,8 @@
 %
 % All parameters are passed to measure_colony_sizes.
 
+% (c) Gordon Bean, August 2013
+
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...
     'outputExtension', '.cs.txt', ...

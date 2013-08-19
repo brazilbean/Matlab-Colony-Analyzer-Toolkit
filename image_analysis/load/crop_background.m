@@ -10,6 +10,8 @@
 %  - the width of the margin surrounding the plate
 %
 
+% (c) Gordon Bean, August 2013
+
 function [plate crop] = crop_background( img, varargin )
     params = get_params( varargin{:} );
     params = default_param( params, 'offset', 0 );
