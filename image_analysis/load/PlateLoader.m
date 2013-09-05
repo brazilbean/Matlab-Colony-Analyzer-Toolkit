@@ -13,24 +13,35 @@
 %  - the default behavior of PlateLoader is to rotate the image by 90
 %  degrees if the image is in portrait mode. If allowRotate is false, the
 %  image will not be rotated.
-%
+% crop <[]>
+%  - may be a vector of 4 elements: [row_min, row_max, col_min, col_max]
 
 % (c) Gordon Bean, August 2013
 
-classdef PlateLoader
+classdef PlateLoader < Closure
     properties
         channel
         allowrotate
+        crop
+        rotate90
+        interp
     end
     
     methods
         function this = PlateLoader(varargin)
             params = default_param( varargin, ...
                 'channel', 1:3, ...
-                'allowrotate', true );
+                'allowrotate', true, ...
+                'crop', [], ...
+                'rotate90', 0, ...
+                'interp', 0);
             for prop = properties('PlateLoader')'
                 this.(prop{:}) = params.(prop{:});
             end
+        end
+        
+        function out = closure_method(this, varargin)
+            out = this.load(varargin{:});
         end
         
         function plate = load( this, filename )
@@ -50,7 +61,22 @@ classdef PlateLoader
             end
             
             % Crop background
-            plate = crop_background( img );
+            if isempty(this.crop)
+                plate = crop_background( img );
+            else
+                plate = img ...
+                    (this.crop(1):this.crop(2), this.crop(3):this.crop(4));
+            end
+            
+            % Rotate
+            if this.rotate90 ~= 0
+                plate = rot90(plate, this.rotate90);
+            end
+            
+            % Resample
+            if this.interp > 0
+                plate = interp2(plate, this.interp);
+            end
             
         end
     end

@@ -11,10 +11,12 @@ function out = apply_correction( data, varargin )
         params = default_param( varargin(1:ii+1), ...
             'dim', 2);
         varargin = varargin(ii+2:end);
+    else
+        params.dim = 2;
     end
     
     %% Get dimensions
-    n = size(data,params.dim);
+    n = size(data, params.dim);
     dims = [8 12] .* sqrt( n / 96 );
     
     %% Apply corrections

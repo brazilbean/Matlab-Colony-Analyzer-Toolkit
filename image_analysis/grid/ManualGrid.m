@@ -64,7 +64,7 @@ classdef ManualGrid < Closure
                     @()this.show_plate(plate), 4, ...
                     'Please select the four corners of the colony grid');
 
-                if (isnan(corners))
+                if isempty(corners) || size(corners,1) < 4
                     grid = [];
                     return;
                 end

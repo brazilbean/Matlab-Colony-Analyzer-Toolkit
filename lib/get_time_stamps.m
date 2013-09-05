@@ -5,7 +5,11 @@
 function times = get_time_stamps( imagedir, varargin )
     
     % Get files
-    files = dirfiles(imagedir, varargin{:});
+    if iscell(imagedir)
+        files = imagedir;
+    else
+        files = dirfiles(imagedir, varargin{:});
+    end
     
     % n x [year month day hour minute second]
     times = nan(length(files), 6);
