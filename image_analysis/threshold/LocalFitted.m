@@ -4,6 +4,7 @@
 classdef LocalFitted < ThresholdMethod
     properties
         bins;
+        pvalue;
         fdr;
         fast;
         full;
@@ -20,7 +21,8 @@ classdef LocalFitted < ThresholdMethod
             % Local stuff
             this = default_param( this, ...
                 'bins', 50 : 20 : 200, ...
-                'fdr', 0.01, ...
+                'pvalue', 0.001, ...
+                'fdr', nan, ...
                 'fast', true, ...
                 'full', false, ...
                 'num_background_iters', 5, ...
@@ -55,19 +57,25 @@ classdef LocalFitted < ThresholdMethod
         function it = determine_threshold( this, box )
             % Fit background pixels
             [bpm, st] = this.get_pm_std( box );
-
-            xx = linspace(min(box(:)), max(box(:)), 200);
-            yy = normpdf(xx, bpm, st);
             
-            % Estimate intensity threshold
-            [n, xb] = hist(box(:), floor(numel(box)/100));
-            h = interp1(xb, n, bpm);
-            yy = yy./max(yy) * h;
+            if ~isnan(this.fdr)
+                % Use FDR method
+                xx = linspace(min(box(:)), max(box(:)), 200);
+                yy = normpdf(xx, bpm, st);
 
-            nn = interp1( xb, n, xx );
-            it = xx(find( xx > bpm & yy./nn < this.fdr, 1 ));
-%             it = xx(find( xx > bpm & yy < (nn-yy)*this.factor, 1 ));
-            
+                % Estimate intensity threshold
+                [n, xb] = hist(box(:), floor(numel(box)/100));
+                h = interp1(xb, n, bpm);
+                yy = yy./max(yy) * h;
+
+                nn = interp1( xb, n, xx );
+                it = xx(find( xx > bpm & yy./nn < this.fdr, 1 ));
+    %             it = xx(find( xx > bpm & yy < (nn-yy)*this.factor, 1 ));
+            else
+                % Use p-value method (default)
+                it = bpm - norminv(this.pvalue)*st;
+                
+            end
             if (isempty(it))
                 it = nan;
             end
@@ -112,6 +120,8 @@ classdef LocalFitted < ThresholdMethod
         end
         
         function m = fastmode(this, data, bins )
+%             m = parzen_mode(data(:));
+        
             if (nargin < 3)
                 bins = this.bins;
             end

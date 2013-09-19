@@ -38,7 +38,7 @@ function mins = find_colony_borders_threshed( tmp, threshed )
     [~,mi] = min(tmp(1+midr:end,midc+(-w:w)));
     rmax = median(mi) + midr;
     if (~isnan(threshed))
-        rmax_ = find(all(~threshed(midr:rmax,midc+(-w:w)),2),1);
+        rmax_ = find(all(~threshed(1+midr:rmax,midc+(-w:w)),2),1);
         if (~isempty(rmax_))
             rmax = midr + rmax_ - 1;
         end
@@ -56,9 +56,9 @@ function mins = find_colony_borders_threshed( tmp, threshed )
     
     % East
     [~,mi] = min(tmp(midr+(-w:w),1+midc:end),[],2);
-    cmax = median(mi) + midr;
+    cmax = median(mi) + midc;
     if (~isnan(threshed))
-        cmax_ = find(all(~threshed(midr+(-w:w),midc:cmax),1),1);
+        cmax_ = find(all(~threshed(midr+(-w:w),1+midc:cmax),1),1);
         if (~isempty(cmax_))
             cmax = midc + cmax_ - 1;
         end
