@@ -8,18 +8,25 @@
 classdef ReadjustGrid < Closure
     properties
         grid;
+        numadjusts;
     end
     
     methods
-        function this = ReadjustGrid( grid )
+        function this = ReadjustGrid( grid, varargin )
             this.grid = grid;
+            this = default_param(this, ...
+                'numAdjusts', 1, ...
+                varargin{:});
         end
         function out = closure_method( this, varargin )
             out = this.fit_grid(varargin{:});
         end
         function grid = fit_grid(this, plate)
-            % Adjust the grid to the plate
-            grid = adjust_grid(plate, this.grid, 'numMiddelAdjusts', 0);
+            grid = this.grid;
+            for ii = 1 : this.numadjusts
+                % Adjust the grid to the plate
+                grid = adjust_grid(plate, grid, 'numMiddelAdjusts', 0);
+            end
         end
     end
 end

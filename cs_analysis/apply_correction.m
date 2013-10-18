@@ -6,10 +6,10 @@
 
 function out = apply_correction( data, varargin )
     %% Get parameters
-    ii = find( cellfun(@ischar, varargin), 1, 'first' );
+    ii = find( cellfun(@ischar, varargin), 1, 'last' );
     if ~isempty(ii)
         params = default_param( varargin(1:ii+1), ...
-            'dim', 2);
+            'dim', 2, 'parallel', false);
         varargin = varargin(ii+2:end);
     else
         params.dim = 2;
@@ -28,12 +28,22 @@ function out = apply_correction( data, varargin )
     out = reshape(out, [sz(1) prod(sz(2:end))]);
     
     for correction_ = varargin; correction = correction_{:};
-        for ii = 1 : size(out,2)
-            % Apply filter
-            tmp = correction(reshape(out(:,ii), dims));
-            
-            % Correct plate
-            out(:,ii) = out(:,ii) ./ tmp(:);
+        if params.parallel
+            parfor ii = 1 : size(out,2)
+                % Apply filter
+                tmp = correction(reshape(out(:,ii), dims));
+
+                % Correct plate
+                out(:,ii) = fil(out(:,ii) ./ tmp(:), @isinf);
+            end
+        else
+            for ii = 1 : size(out,2)
+                % Apply filter
+                tmp = correction(reshape(out(:,ii), dims));
+
+                % Correct plate
+                out(:,ii) = fil(out(:,ii) ./ tmp(:), @isinf);
+            end
         end
     end
     
