@@ -6,6 +6,7 @@
 function off = measure_colony_offset( box, varargin )
     params = default_param( varargin, ...
         'minSpotSize', 5 );
+    box = mean(double(box),3);
     
     % Determine window size from box dimensions
     w = (size(box,1)-1)/2;

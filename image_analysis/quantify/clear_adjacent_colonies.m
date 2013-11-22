@@ -6,6 +6,9 @@ function [box, bbox] = clear_adjacent_colonies( box, bbox )
         bbox = nan;
     end
     
+    if size(box,3) > 1
+        box = mean(box,3);
+    end
     bounds = find_colony_borders_threshed( box, bbox );
     if(isnan(bbox))
         bbox = true(size(box));

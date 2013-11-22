@@ -31,12 +31,12 @@ function [cs files] = load_colony_sizes( filename, varargin )
     ext = ['*' params.extension];
     if iscell(filename) || isdir(filename)
         % Directory or array of files
-        if isdir(filename)
-            % Directory of files
-            files = dirfiles( filename, ext );
-        else
+        if iscell(filename)
             % Cell array of files
             files = filename;
+        else
+            % Directory of files
+            files = dirfiles( filename, ext );
         end
         
         % Load the data for each file
@@ -53,7 +53,21 @@ function [cs files] = load_colony_sizes( filename, varargin )
             cs = cat(1, cs{:});
             cs_ = struct;
             for ff = fieldnames(cs)'
-                cs_.(ff{:}) = cat(1, cs.(ff{:}));
+                try
+                    cs_.(ff{:}) = cat(1, cs.(ff{:}));
+                catch e
+                    if strcmp(e.identifier, ...
+                            'MATLAB:catenate:dimensionMismatch')
+                        sz = cellfun(@numel, {cs.(ff{:})});
+                        failed = (sz ~= median(sz));
+                        iprintf(2, ...
+                            'File failed to load properly: \n\t%s\n',...
+                            files(failed));
+                        fprintf(2',...
+                            'These images may need to be re-analyzed.\n');
+                    end
+                    throw(e)
+                end
             end
             cs = cs_;
             
