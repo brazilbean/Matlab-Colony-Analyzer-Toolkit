@@ -86,7 +86,7 @@ function win = estimate_grid_spacing( plate )
         end
         
         pks = pks2;
-        win = floor(mean(pks ./ (1:length(pks))'));
+        win = mean(pks ./ (1:length(pks))');
 
     end
 

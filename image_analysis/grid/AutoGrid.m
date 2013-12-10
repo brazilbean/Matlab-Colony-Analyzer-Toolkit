@@ -14,6 +14,7 @@ classdef AutoGrid < Closure
         sizestandard;
         dimensions;
         gridspacing;
+        orientationmethod;
     end
     
     methods
@@ -30,7 +31,9 @@ classdef AutoGrid < Closure
                 'offsetStep', 3, ...
                 'sizeStandard', [1853 2765], ...
                 'dimensions', nan, ...
-                'gridspacing', nan, varargin{:} ); 
+                'gridspacing', nan, ...
+                'orientationMethod', 'aspectRatio', ... 'periodic'
+                varargin{:} ); 
         end
         
         function grid = closure_method(this, varargin)
@@ -81,16 +84,28 @@ classdef AutoGrid < Closure
         end
         
         function grid = estimate_grid_orientation(this, plate, grid)
-            tang = this.sizestandard(1) / this.sizestandard(2);
-            ratiofun = @(xp, yp) atan( -(yp - xp*tang)./(yp*tang-xp) );
-            [yp xp] = size(plate);
+            switch lower(this.orientationmethod)
+                case 'aspectratio'
+                    tang = this.sizestandard(1) / this.sizestandard(2);
+                    ratiofun = ...
+                        @(xp, yp) atan( -(yp - xp*tang)./(yp*tang-xp) );
+                    [yp, xp] = size(plate);
 
-            theta = ratiofun( xp, yp );
-            if ( mean(plate(1,floor(end/2):end)) > ...
-                    mean(plate(1,1:floor(end/2))) )
-                theta = -theta;
+                    theta = ratiofun( xp, yp );
+                    if ( mean(plate(1,floor(end/2):end)) > ...
+                            mean(plate(1,1:floor(end/2))) )
+                        theta = -theta;
+                    end
+                    grid.info.theta = theta;
+                    
+                case 'periodic'
+                    grid.info.theta = estimate_orientation(plate, nan, ...
+                        'gridSpacing', grid.win, 'filter', @(x) x < 5);
+                    
+                otherwise
+                    error('Invalid orientation method: %s', ...
+                        this.orientationmethod);
             end
-            grid.info.theta = theta;
         end
         
         function grid = compute_initial_placement(this, plate, grid)

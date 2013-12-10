@@ -65,8 +65,15 @@ function [cs files] = load_colony_sizes( filename, varargin )
                             files(failed));
                         fprintf(2',...
                             'These images may need to be re-analyzed.\n');
+                        
+                        sz = size(cs(find(~failed,1)).(ff{:}));
+                        for fi = find(failed)
+                            cs(fi).(ff{:}) = nan(sz);
+                        end
+                        
                     end
-                    throw(e)
+                    cs_.(ff{:}) = cat(1, cs.(ff{:}));
+                    
                 end
             end
             cs = cs_;

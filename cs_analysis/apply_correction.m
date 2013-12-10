@@ -9,7 +9,9 @@ function out = apply_correction( data, varargin )
     ii = find( cellfun(@ischar, varargin), 1, 'last' );
     if ~isempty(ii)
         params = default_param( varargin(1:ii+1), ...
-            'dim', 2, 'parallel', false);
+            'dim', 2, ...
+            'parallel', false, ...
+            'function', @rdivide);
         varargin = varargin(ii+2:end);
     else
         params.dim = 2;
@@ -23,7 +25,8 @@ function out = apply_correction( data, varargin )
     out = data;
     
     % Permute and reshape
-    out = permute_dim(out, params.dim);
+    out = shiftdim(out, params.dim-1);
+%     out = permute_dim(out, params.dim);
     sz = size(out);
     out = reshape(out, [sz(1) prod(sz(2:end))]);
     
@@ -34,7 +37,7 @@ function out = apply_correction( data, varargin )
                 tmp = correction(reshape(out(:,ii), dims));
 
                 % Correct plate
-                out(:,ii) = fil(out(:,ii) ./ tmp(:), @isinf);
+                out(:,ii) = fil(params.function(out(:,ii),tmp(:)), @isinf);
             end
         else
             for ii = 1 : size(out,2)
@@ -42,13 +45,14 @@ function out = apply_correction( data, varargin )
                 tmp = correction(reshape(out(:,ii), dims));
 
                 % Correct plate
-                out(:,ii) = fil(out(:,ii) ./ tmp(:), @isinf);
+                out(:,ii) = fil(params.function(out(:,ii),tmp(:)), @isinf);
             end
         end
     end
     
     % Reshape and permute
     out = reshape(out, sz);
-    out = ipermute_dim(out, params.dim);
+    out = shiftdim(out, 1-params.dim);
+%     out = ipermute_dim(out, params.dim);
     
 end
