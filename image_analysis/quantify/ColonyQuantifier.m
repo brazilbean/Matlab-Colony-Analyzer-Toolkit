@@ -59,7 +59,7 @@ classdef ColonyQuantifier < Closure
                     bbox2([1:fix(w/2) end-fix(w/2):end],:) = false;
                     bbox2(:,[1:fix(w/2) end-fix(w/2):end]) = false;
                     
-                    cents = component_props( bbox2 );
+                    cents = component_props( clearborder(bbox2) );
                     jj = argmin ...
                         ( sum(bsxfun(@minus, cents, [w+1 w+1]).^2,2) );
                     

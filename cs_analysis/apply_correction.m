@@ -8,25 +8,24 @@ function out = apply_correction( data, varargin )
     %% Get parameters
     ii = find( cellfun(@ischar, varargin), 1, 'last' );
     if ~isempty(ii)
-        params = default_param( varargin(1:ii+1), ...
-            'dim', 2, ...
-            'parallel', false, ...
-            'function', @rdivide);
+        paramargs = varargin(1:ii+1);
         varargin = varargin(ii+2:end);
     else
-        params.dim = 2;
+        paramargs = {};
     end
-    
+    params = default_param( paramargs, ...
+        'dim', 2, ...
+        'parallel', false, ...
+        'function', @rdivide);
+        
     %% Get dimensions
     n = size(data, params.dim);
     dims = [8 12] .* sqrt( n / 96 );
     
     %% Apply corrections
-    out = data;
-    
     % Permute and reshape
-    out = shiftdim(out, params.dim-1);
-%     out = permute_dim(out, params.dim);
+%     out = shiftdim(data, params.dim-1);
+    out = permute_dim(data, params.dim);
     sz = size(out);
     out = reshape(out, [sz(1) prod(sz(2:end))]);
     
@@ -52,7 +51,7 @@ function out = apply_correction( data, varargin )
     
     % Reshape and permute
     out = reshape(out, sz);
-    out = shiftdim(out, 1-params.dim);
-%     out = ipermute_dim(out, params.dim);
+%     out = shiftdim(out, 1-params.dim);
+    out = ipermute_dim(out, size(data), params.dim);
     
 end
