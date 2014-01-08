@@ -9,10 +9,11 @@ function theta = estimate_orientation( plate, it, varargin )
         'box', apply(fix(size(plate)/2), fix(size(plate,2)/8), ...
             @(middle, win) get_box(plate, middle(1), middle(2), win)), ...
         'filter', @(x) false(size(x)), ...
-        'gridSpacing', estimate_grid_spacing(plate) );
+        'gridSpacing', estimate_grid_spacing(plate), ...
+        'thresholdMethod', MinFrequency());
     
     if isnan(it)
-        it = MaxMinMean().determine_threshold(params.box);
+        it = params.thresholdmethod.determine_threshold(params.box);
     end
     
     % Get centroid and area of spots

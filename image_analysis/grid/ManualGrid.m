@@ -7,6 +7,7 @@ classdef ManualGrid < Closure
         adjustgrid;
         dimensions;
         gridspacing;
+        numbercorners;
     end
     
     methods
@@ -16,6 +17,7 @@ classdef ManualGrid < Closure
                 'adjustGrid', true, ...
                 'dimensions', nan, ...
                 'gridspacing', nan, ...
+                'numberCorners', true, ...
                 varargin{:} );
         end
         
@@ -106,16 +108,19 @@ classdef ManualGrid < Closure
             end
         end
         
-        function h = show_plate(~, plate )
+        function h = show_plate(this, plate )
             h = imagesc( plate );
             colormap gray;
 
-            sz = size(plate);
-            w = 100;
-            text(w, w, '1', 'color', 'red', 'fontsize', 24 );
-            text(sz(2)-w, w, '2', 'color', 'red', 'fontsize', 24 );
-            text(w, sz(1)-w, '4', 'color', 'red', 'fontsize', 24 );
-            text(sz(2)-w, sz(1)-w, '3', 'color', 'red', 'fontsize', 24 );
+            if this.numbercorners
+                sz = size(plate);
+                w = 100;
+                text(w, w, '1', 'color', 'red', 'fontsize', 24 );
+                text(sz(2)-w, w, '2', 'color', 'red', 'fontsize', 24 );
+                text(w, sz(1)-w, '4', 'color', 'red', 'fontsize', 24 );
+                text(sz(2)-w, sz(1)-w, '3', 'color', 'red', ...
+                    'fontsize', 24 );
+            end
 
         end
     end

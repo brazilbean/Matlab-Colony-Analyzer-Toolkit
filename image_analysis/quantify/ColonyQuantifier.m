@@ -55,16 +55,16 @@ classdef ColonyQuantifier < Closure
                     % No colony in the middle, check for one nearby
                     w = (size(box,1)-1)/2;
                     
-                    bbox2 = bbox;
-                    bbox2([1:fix(w/2) end-fix(w/2):end],:) = false;
-                    bbox2(:,[1:fix(w/2) end-fix(w/2):end]) = false;
-                    
-                    cents = component_props( clearborder(bbox2) );
-                    jj = argmin ...
+%                     bbox2 = bbox;
+%                     bbox2([1:fix(w/2) end-fix(w/2):end],:) = false;
+%                     bbox2(:,[1:fix(w/2) end-fix(w/2):end]) = false;
+%                     
+                    cents = component_props( clearborder(bbox) );
+                    [val, jj] = min ...
                         ( sum(bsxfun(@minus, cents, [w+1 w+1]).^2,2) );
                     
-                    if ~isempty(jj)
-                        % Found another spot
+                    if ~isempty(jj) && val < w/2
+                        % Found another spot close to the center
                         row = grid.r(ii) + cents(jj,2) - w - 1;
                         col = grid.c(ii) + cents(jj,1) - w - 1;
                         
