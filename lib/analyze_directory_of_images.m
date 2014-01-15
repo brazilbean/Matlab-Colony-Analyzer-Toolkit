@@ -51,7 +51,7 @@ function analyze_directory_of_images( imagedir, varargin )
                 analyze_image( files{ff}, varargin{:} );
             catch e
                 warning('\nImage %s failed: \n%s\n\n', ...
-                    files{ff}, e.message );
+                    files{ff}, getReport(e));
             end
         end
 
@@ -61,8 +61,8 @@ function analyze_directory_of_images( imagedir, varargin )
                 verbose( params.verbose, ' Analyzing: %s\n', files{ff});
                 analyze_image( files{ff}, varargin{:} );
             catch e
-                warning('\nImage failed:\n %s\n  %s\n', ...
-                    files{ff}, e.message );
+                warning('\nImage failed:\n %s\n  %s\n\n', ...
+                    files{ff}, getReport(e) );
             end
         end
     end

@@ -30,7 +30,7 @@ grid = OffsetAutoGrid().fit_grid(plate);
 box = get_box(plate, grid.r(r,c), grid.c(r,c), grid.win);
 imagesc(box); axis image;
 
-% Compute the threshold
+% Compute the threshold for the specific box
 thresh = BackgroundOffset().determine_threshold(box);
 imagesc(box>thresh); axis image;
 

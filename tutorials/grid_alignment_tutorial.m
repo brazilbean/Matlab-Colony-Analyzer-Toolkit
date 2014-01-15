@@ -60,6 +60,19 @@ grid.info
 % relationship between grid positions and grid coordinates. See adjust_grid
 % for more information about how these are used.
 
+%% Parameterizing ManualGrid
+% Many of the grid features can be pre-defined. This is done by passing
+% parameter-value pairs to the constructor of ManualGrid. 
+%
+% For example, the dimensions of the grid can be specified:
+manGrid = ManualGrid('dimensions', [32 48]);
+
+% While the grid algorithm can usually determine the dimensions of the grid
+% automatically (see estimate_grid_spacing.m), sometimes this algorithm
+% will fail. If you know the dimensions in advance (i.e. all the files you
+% will analyze in a batch have the same dimensions), you can avoid some
+% errors by specifying the dimensions.
+
 %% Automatic grid fitting methods
 % Manually identifying the grid for hundreds to thousands of images will
 % certainly get tedious (let alone take an eternity). Thankfully, there are
@@ -92,6 +105,28 @@ grid = OffsetAutoGrid().fit_grid(plate)
 % to process, so I will use AutoGrid as a second try on the failed images
 % before resorting to using ManualGrid.
 
+% Finally, there is the IterativeOffsetGrid algorithm. This algorithm
+% follows a similar logic to OffsetAutoGrid, but it uses a more robust
+% decision making step. It iteratively moves the grid by 1 row or column
+% until the colony positions in the final row or column have "colony
+% presence" scores greater than the "zero-th" row or column. 
+%
+% For example, the algorithm checks for the presence of colonies in the
+% space adjacent to the first column and in the last column. If the space
+% adjacent to the first column has a stronger average "colony presence" 
+% score than the last column, the grid is shifted to the left. 
+%
+% The "colony presence" score is the correlation of the colony box (a 2D
+% window of size grid.win*2+1 centered at the grid position) with the
+% average of colony boxes from the center of the grid. Empty spots get a
+% lower score, while spots with colonies will have higher scores. 
+%
+% The IterativeOffsetGrid is the most robust of these algorithms, but
+% it also takes the longest. If time is not a concern, you can use
+% IterativeOffsetGrid for all of the images. Or, you can use OffsetAutoGrid
+% for the bulk of the images, IterativeOffsetGrid for those that fail once,
+% and ManualGrid for the few (hopefully) that fail twice. 
+
 %% Specifying the grid spacing and dimensions
 % The grid spacing and dimensions can be pre-specified. This is useful when
 % the grid spacing and dimension algorithms fail. When these parameters are
@@ -99,14 +134,15 @@ grid = OffsetAutoGrid().fit_grid(plate)
 
 grid = ManualGrid('dimensions', [32 48]).fit_grid(plate)
 
-auto = AutoGrid('dimensions', [32 48], 'gridSpacing', 71);
+auto = OffsetAutoGrid('dimensions', [32 48], 'gridSpacing', 71);
 grid = auto(plate);
 
 %% Other important parameters
-% AutoGrid and OffsetAutoGrid have additional parameters than can be set to
-% fine-tune their functionality. I have tried to provide defaults that work
-% well across a variety of images, but you may find that a particular set
-% of parameters works better for your images. 
+% AutoGrid, OffsetAutoGrid, and IterativeOffsetGrid, have additional 
+% parameters than can be set to fine-tune their functionality. I have tried
+% to provide defaults that work well across a variety of images, but you 
+% may find that a particular set of parameters works better for your 
+% images. 
 %
 % I recommend looking at the respective m-files for more information on
 % what the parameters are and what they do. 
