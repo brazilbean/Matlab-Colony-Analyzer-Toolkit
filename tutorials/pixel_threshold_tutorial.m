@@ -1,4 +1,4 @@
-%% R & D - Pixel Threshold Tutorial
+%% Tutorial - Pixel Threshold Tutorial
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, July 2013
 % gbean@ucsd.edu

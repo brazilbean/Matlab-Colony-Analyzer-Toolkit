@@ -21,4 +21,5 @@ function grid = determine_grid_from_corners( corners, grid )
     grid.factors.row = rfact;
     grid.factors.col = cfact;
 
+    grid.win = nanmean(diff(grid.c(1,:)));
 end

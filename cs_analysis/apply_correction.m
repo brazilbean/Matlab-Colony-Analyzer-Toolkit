@@ -1,8 +1,13 @@
 %% Apply correction - Apply a plate correction
 % Gordon Bean, June 2013
 % 
-% Assumes the data are arranged in an n x m grid, where n is the number of
-% plates and m is the product of the grid dimensions.
+% 'dim' {2} - the dimension along which to apply the corrections
+% 'parallel' {false} - if true, performs the corrections in parallel using
+% parfor (requires the Matlab Parallel Processing Toolbox).
+% 'function' {@rdivide} - the function used to correct the data relative to
+% the background colony sizes.
+%
+% See also spatial_correction_tutorial.m
 
 function out = apply_correction( data, varargin )
     %% Get parameters

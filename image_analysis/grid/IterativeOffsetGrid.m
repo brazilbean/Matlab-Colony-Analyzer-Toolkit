@@ -52,11 +52,12 @@ classdef IterativeOffsetGrid < AutoGrid
         
         function grid = correct_offset_grid(this, plate, grid)
             % Define the reference position
+            win = grid.win * 0.5;;
             refbox = mean(cat(3, ...
-                get_box(plate, grid.r(1,1), grid.c(1,1), grid.win), ...
-                get_box(plate, grid.r(1,2), grid.c(1,2), grid.win), ...
-                get_box(plate, grid.r(2,1), grid.c(2,1), grid.win), ...
-                get_box(plate, grid.r(2,2), grid.c(2,2), grid.win)),3);
+                get_box(plate, grid.r(1,1), grid.c(1,1), win), ...
+                get_box(plate, grid.r(1,2), grid.c(1,2), win), ...
+                get_box(plate, grid.r(2,1), grid.c(2,1), win), ...
+                get_box(plate, grid.r(2,2), grid.c(2,2), win)),3);
 
             % Correct the out-of-image positions
             out_of_range = ...
@@ -97,7 +98,7 @@ classdef IterativeOffsetGrid < AutoGrid
             for ii = 1 : grid.dims(2)
                 try
                     tmpbox = get_box ...
-                        (plate, grid.r(1,ii)-w, grid.c(1,ii), w);
+                        (plate, grid.r(1,ii)-grid.win, grid.c(1,ii), w);
                 catch e
                     tmpbox = nan(size(refbox));
                 end
@@ -128,7 +129,7 @@ classdef IterativeOffsetGrid < AutoGrid
             for ii = 1 : grid.dims(1)
                 try
                     tmpbox = get_box ...
-                        (plate, grid.r(ii,1), grid.c(ii,1)-w, w);
+                        (plate, grid.r(ii,1), grid.c(ii,1)-grid.win, w);
                 catch e
                     tmpbox = nan(size(refbox));
                 end

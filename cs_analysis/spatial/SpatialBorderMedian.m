@@ -1,6 +1,8 @@
 %% Spatial Border Median - a colony size spatial and border correction
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, July 2013
+%
+% See also spatial_correction_tutorial.m
 
 classdef SpatialBorderMedian < Closure
     properties

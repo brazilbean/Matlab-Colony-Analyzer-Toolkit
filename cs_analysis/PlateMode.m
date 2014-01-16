@@ -1,6 +1,8 @@
 %% Plate Mode - a colony size correction
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, July 2013
+%
+% See also spatial_correction_tutorial.m
 
 classdef PlateMode < Closure
     methods

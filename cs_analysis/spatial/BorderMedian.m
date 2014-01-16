@@ -1,6 +1,8 @@
 %% Border Median - a colony size border correction
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, July 2013
+%
+% See also spatial_correction_tutorial.m
 
 classdef BorderMedian < Closure
     properties
