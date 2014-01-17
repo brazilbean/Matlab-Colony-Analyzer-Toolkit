@@ -21,7 +21,8 @@ function scat = pseudoplate (plate, varargin)
     params = default_param( params, 'emap', false );
     params = default_param( params, 'style', 'circles' );
     params = default_param( params, 'notemarker', '\leftarrow' );
-
+    params = default_param( params, 'nancolor', 0.9*[1 1 1]);
+    
     newplot;
     
     % Find dimensions
@@ -46,8 +47,8 @@ function scat = pseudoplate (plate, varargin)
     % Draw figure
     switch lower(params.style)
         case 'imagesc'
-            nancolor = 0.9*[1 1 1];
-            imagescnan( reshape( plate, dims ), 'nancolor', nancolor);
+            imagescnan( reshape( plate, dims ), 'nancolor', ...
+                params.nancolor);
             
         case 'circles'
             xx = repmat( 1:dims(2), [dims(1) 1] );
