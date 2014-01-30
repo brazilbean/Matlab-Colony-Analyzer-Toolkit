@@ -40,12 +40,6 @@ classdef ManualGrid < Closure
         
     methods( Access = protected )
         function grid = initialize_grid(this, plate)
-%             % Grid spacing
-%             if ~isnan(this.gridspacing)
-%                 grid.win = this.gridspacing;
-%             else
-%                 grid.win = estimate_grid_spacing(plate);
-%             end
 
             % Grid dimensions
             if ~isnan(this.dimensions)

@@ -207,8 +207,9 @@ function grid = adjust_grid( plate, grid, varargin )
         
         % Check for error cases
         if (any(off > win/2))
-            error('Offset too large - %s', ...
-                'the adjustment window may need to be smaller.');
+            off = [nan nan];
+%             error('Offset too large - %s', ...
+%                 'the adjustment window may need to be smaller.');
         end
         
         % Return adjusted location
