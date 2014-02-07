@@ -9,6 +9,11 @@
 % the examples in other tutorials); however, this tutorial is patterned
 % after an actually small-scale screen conducted in our lab and should give
 % you a good idea for how to perform your own analysis.
+%
+% I strongly recommend you read all of the tutorials before starting your
+% analysis. If possible, read through the tutorials before starting the
+% screen, as computational requirements may influence the structure of your
+% experiments.
 
 %% Image directory
 imagedir = 'images/gal_pilots/KO_Glu+Gal_Pilot/';
@@ -64,8 +69,21 @@ toc;
 %% Quality control
 % Manual inspection - look at each binary image and annotate it as good or
 % needing to be redone.
+%
+% manual_binary_inspection is one tool to help you identify images that
+% were analyzed incorrectly. It iterates over each image, shows the
+% thresholded version of the image, and allows the user to indicate whether
+% the image was analyzed correctly. From the binary image you can determine
+% whether the analysis was incorrect by noting whether there are any rows
+% or columns containing half-colonies. 
 
 out = manual_binary_inspection( imagedir );
+
+% If you don't want to go through each binary image by hand, you can look
+% at the correlation between replicates to find images that failed.
+%
+% Primarily, you are looking for cases where the grid was not properly
+% overlaid on the image. 
 
 %% Re-analyze failed images
 failed = achar('n', out)
