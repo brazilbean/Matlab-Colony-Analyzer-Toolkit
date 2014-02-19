@@ -58,11 +58,9 @@ function err = compute_error_estimates( data, plate_sizes, varargin )
     if params.verbose
         % Plate sizes vs relative error
         subplot(1,2,1)
-        [cc, ss] = uberscat(in(repmat(plate_sizes,[1,na,1])), relerr(:));
+        plot(nat_range, nat2relerr, 'linewidth', 3, 'color', 'k');
+        pretty_figure
         labels('Plate size','Relative error');
-        qtitle('Pearson/Spearman Correlation: %0.3f / %0.3f', cc, ss);
-        line(nat_range, nat2relerr, 'linewidth', 3, 'color', 'k');
-        ylim([-3 3]);
     end
     
     %% Find weighted mean of relative errors
@@ -89,11 +87,9 @@ function err = compute_error_estimates( data, plate_sizes, varargin )
     if params.verbose
         % Array size vs relative error
         subplot(1,2,2);
-        [cc, ss] = uberscat(kans2(:), relerr(:));
+        plot(kan_range, kan2relerr, 'linewidth', 3, 'color', 'k');
+        pretty_figure
         labels('Array size','Relative error')
-        qtitle('Pearson/Spearman Correlation: %0.3f / %0.3f', cc, ss);
-        line(kan_range, kan2relerr, 'linewidth', 3, 'color', 'k');
-        ylim([-3 3]);
     end
     
     %% Compute expected errors
