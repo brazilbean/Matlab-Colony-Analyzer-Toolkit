@@ -31,6 +31,7 @@ corrected = apply_correction( data, param_value_pairs, corrections );
 % Note that one side effect of normalizing by the background colony size is
 % that the median colony size of the plate will become 1. See Example 3
 % below.
+%
 
 %% SpatialMedian
 % The SpatialMedian algorithm computes the background as the median of the
@@ -44,6 +45,13 @@ corrected = apply_correction( data, param_value_pairs, corrections );
 % 'Window' - a 2D binary mask specifying the window centered at each
 % position. If this is specified, 'WindowSize' and 'WindowShape' or
 % ignored.
+% 'AcceptZeros' {false} - When regions of the plate have many zeros, the
+% median may be zero, which may result in division by zero and NaN and Inf
+% values. If false, then background values of zero are replaced by the
+% closest non-zero value to the median in that window. If true, nothing is
+% done to correct zero-values. Note that when there are not values other
+% than zero within a window, acceptZeros == false will result in NaN values
+% in those positions.
 
 %% SpatialSurface
 % The SpatialSurface algorithm fits a high-order 2D polynomial to the data

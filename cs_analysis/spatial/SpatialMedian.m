@@ -10,6 +10,7 @@ classdef SpatialMedian < Closure
         windowshape
         windowfun
         window
+        acceptzeros
     end
     
     methods
@@ -20,6 +21,7 @@ classdef SpatialMedian < Closure
                 'windowShape', 'round', ...
                 'windowFun', @nanmedian, ...
                 'window', nan, ...
+                'acceptZeros', false, ...
                 varargin{:});
         end
         
@@ -44,21 +46,40 @@ classdef SpatialMedian < Closure
                 end
             end
             
-            % Make sure colsizes is square
-            n = numel(colsizes);
-            dims = [8 12] .* sqrt( n / 96 );
-            colsizes = reshape(colsizes, dims);
+            % Make sure colsizes is rectangular
+            if max(size(colsizes)) == numel(colsizes)
+                n = numel(colsizes);
+                dims = [8 12] .* sqrt( n / 96 );
+                colsizes = reshape(colsizes, dims);
+            end
             
             fit = blockfun( colsizes, this.window, this.windowfun );
             
+            % Correct for zeros in the background
+            % Assumes that all values are positive.
+            if ~this.acceptzeros
+                iszero = find(fit == 0);
+                if ~isempty(iszero)
+                    fit(iszero) = blockfun( fil(colsizes, @(x) x<=0), ...
+                        this.window, @this.abs_min, 'positions', iszero);
+                end
+            end
         end
         
-        function window = round_window(this, diam )
+        function window = round_window(~, diam )
             window = false(diam);
             [xx, yy] = meshgrid(1:size(window,1), 1:size(window,1));
             mid = ceil(size(window,1)/2);
             r = sqrt( floor(size(window,1)/2) * size(window,1)/2 );
             window( sqrt((xx-mid).^2 + (yy-mid).^2) <= r ) = true;
+        end
+        
+        function val = abs_min(~, x)
+            % If the median was zero, I want the closest non-zero value
+            % (i.e. the closest to the median that is not zero). 
+            [val, mi] = min(x);
+            ii = sub2ind(size(x), mi, 1:size(x,2));
+            val = val .* sign(x(ii));
         end
     end
     
