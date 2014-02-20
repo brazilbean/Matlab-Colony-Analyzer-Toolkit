@@ -1,9 +1,12 @@
-function [s, svar] = compute_s_scores( data, err, array_smf, array_sd)
+function [s, svar] = compute_s_scores( data, err, array_smf )
 % Computes an unaveraged S score.
-% It takes the input variable err which is used to place a minimum 
-% bound on experimental variance, the vectors cont_size (the expected
-% colony sizes) and cont_sd (the estimated standard deviation for the 
-% control sample).
+%
+% Data must be in query x array x repliate format.
+%
+% The input variable err is obtained using compute_error_estimates.
+%
+% array_smf must be a vector containing the single mutant fitnesses of the
+% array strains.
 %
 % This is an updated function which replaced scoreS to allow for more
 % efficient computation.
@@ -11,10 +14,11 @@ function [s, svar] = compute_s_scores( data, err, array_smf, array_sd)
 % Written by Sean Collins (2006) as part of the EMAP Toolkit
 % Modified by Gordon Bean (2011)
 
+    %% Make sure array smf is 1 x n
+    array_smf = array_smf(:)';
+    
     %% Array stdev
-    if nargin < 4
-        array_sd = nanmedian(nanstd(data,0,3),1);
-    end
+    array_sd = nanmedian(nanstd(data,0,3),1);
     
     %% Calculate Observed N
     not_nans = ~isnan( data );

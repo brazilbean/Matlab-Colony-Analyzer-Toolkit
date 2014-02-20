@@ -7,7 +7,7 @@
 % unnormalized and normalized colony sizes
 %
 % Usage
-% err = compute_error_estimates( raw, rawN, ... )
+% err = compute_error_estimates( data, raw_plate_sizes, ... )
 %
 % Parameters
 % * binSize - double scalar, default = 50
@@ -18,7 +18,7 @@
 %   The fields of this struct contain the indexes of the spot replicates
 %
 
-function err = compute_error_estimates( data, plate_sizes, varargin )
+function err = compute_error_estimates( data, raw_plate_sizes, varargin )
     
     %% Define parameters
     params = default_param( varargin, ...
@@ -46,12 +46,13 @@ function err = compute_error_estimates( data, plate_sizes, varargin )
     kans2 = repmat(kans, [nq 1 nr]);
 
     %% Compute error estimates as a function of the query phenotype 
-    nat_range = linspace( min(plate_sizes(:)), max(plate_sizes(:)), ...
+    nat_range = linspace( min(raw_plate_sizes(:)), ...
+        max(raw_plate_sizes(:)), ...
         params.numrange);
     nat2relerr = nan(size(nat_range));
-    bsize = params.binwindow * max(plate_sizes(:));
+    bsize = params.binwindow * max(raw_plate_sizes(:));
     for ii = 1 : params.numrange
-        list = abs(plate_sizes - nat_range(ii)) < bsize/2;
+        list = abs(raw_plate_sizes - nat_range(ii)) < bsize/2;
         nat2relerr(ii) = nanstd( in(relerr(repmat(list,[1,na,1]))) );
     end
     
@@ -69,7 +70,7 @@ function err = compute_error_estimates( data, plate_sizes, varargin )
     % error to the weighted mean to see if we are noisier or less 
     % noisy than average
 
-    counts = hist( plate_sizes(:), nat_range );
+    counts = hist( raw_plate_sizes(:), nat_range );
     total = sum( counts(~isnan(nat2relerr)) );
     w = counts/total;
     wmean = nansum( w(:) .* nat2relerr(:) );
@@ -94,8 +95,9 @@ function err = compute_error_estimates( data, plate_sizes, varargin )
     
     %% Compute expected errors
     err.exp = bsxfun( @times, bsxfun(@times, ...
-        interp1( nat_range, nat2relerr, plate_sizes ), ...
-        interp1( kan_range, kan2relerr, kans2 )), meansize );
+        interp1(nat_range, nat2relerr, fil(raw_plate_sizes, @isnan, 1)),...
+        interp1(kan_range, kan2relerr, kans2 )), meansize );
+    err.exp( repmat(isnan(raw_plate_sizes), [1 na 1]) ) = nan;
     
     %% Meta data
     err.info = params;
