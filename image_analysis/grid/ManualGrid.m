@@ -1,6 +1,68 @@
-%% Manual Grid - A tool for placing the grid manually
+%% Manual Grid - A tool for placing the colony grid manually
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, June 2013
+%
+% Syntax
+% Using ManualGrid as a parameterizeable function:
+% MG = ManualGrid()
+% MG = ManualGrid( 'Name', Value, ... )
+% grid = MG( plate )
+%
+% Using ManualGrid as a regular object.
+% grid = ManualGrid(...).fit_grid( plate )
+%
+% Description
+% ManualGrid is a class object that defines a tool for manually specifying
+% the position of the colony grid on an image. It can be used as a
+% parameterizeable function - i.e. you treat the object returned by the
+% constructor as a function handle - or as a regular object, which you use
+% to call fit_grid().
+%
+% MG = ManualGrid() returns a callable object (similar in usage to a
+% function handle) with the default parameters.
+%
+% MG = ManualGrid( 'Name', Value, ... ) accepts name-value pairs from the
+% following list (defaults in {}):
+%  'adjustGrid' {true} - if false, proposed coordinates for the corners of
+%  the grid are take as-is and no attempt is made to fit the interpolated
+%  grid to the image (using adjust_grid). 
+%
+%  'dimensions' - a 2-element vector indicating the number of rows and
+%  columns in the grid. If this parameter is not provided, ManualGrid will
+%  attempt to estimate the dimensions using the grid spacing using
+%  estimate_dimensions.
+%
+%  'gridSpacing' - a scalar indicating the distance in pixels between the
+%  centers of adjacent colonies. If this parameter is not provided,
+%  ManualGrid attempts to estimate the grid spacing using
+%  estimate_grid_spacing.
+%
+%  'numberCorners' {true} - if false, the corners are not numbered when the
+%  user is queried for the positions of the grid corners. Because of the UI
+%  callback mechanism, the numbering may interfer with coordinate selection
+%  when the image is cropped very closely to the colonies; in such cases,
+%  set 'numberCorners' to false (be aware the order in which corners are
+%  selected still matters).
+%
+% Note: It is often the case that if the ManualGrid tool is required,
+% estimate_grid_spacing will likely fail. To ensure success, I suggest
+% always defining the 'dimensions' parameter when using ManualGrid.
+%
+% After calling the constructor, the returned object may be used like a
+% function handle (see examples below).
+%
+% Examples
+% Using ManualGrid as a parameterizeable function:
+% MG = ManualGrid('dimensions', [64 96]);
+% grid = MG( plate );
+%
+% Using ManualGrid as a regular object:
+% MG = ManualGrid('dimensions', [64 96]);
+% grid = MG.fit_grid( plate );
+%
+% grid = ManualGrid('dimensions', [64 96]).fit_grid(plate);
+%
+% See also tutorials/grid_alignment_tutorial.m
 
 classdef ManualGrid < Closure
     properties
@@ -40,7 +102,13 @@ classdef ManualGrid < Closure
         
     methods( Access = protected )
         function grid = initialize_grid(this, plate)
-
+            % Grid spacing
+            if ~isnan(this.gridspacing)
+                grid.win = this.gridspacing;
+            else
+                grid.win = estimate_grid_spacing(plate);
+            end
+            
             % Grid dimensions
             if ~isnan(this.dimensions)
                 grid.dims = this.dimensions;

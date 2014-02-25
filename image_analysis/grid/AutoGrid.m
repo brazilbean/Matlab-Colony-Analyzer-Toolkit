@@ -1,7 +1,80 @@
 %% Auto Grid - An auto-grid algorithm based on an optimal fit
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, June 2013
-
+%
+% Syntax
+% AG = AutoGrid();
+% AG = AutoGrid('Name',Value,...);
+% grid = AG(plate);
+% grid = AG.fit_grid(plate);
+% grid = AutoGrid(...).fit_grid(plate);
+%
+% Description
+% AG = AutoGrid() returns an IterativeOffsetGrid object with
+% the default parameters. This object can be used as a regular object with
+% the syntax GRID = AG.fit_grid(PLATE) (where PLATE is the 2D image
+% matrix), or as a function handle with the syntax GRID = AG(PLATE).
+%
+% AutoGrid also accepts name-value arguments from the following
+% list (defaults in {}):
+%  'dimensions' - a 2-element vector indicating the number of rows and
+%  columns in the grid. If not specified, these values are determined using
+%  estimate_dimensions.
+%
+%  'gridSpacing' - a scalar indicating the number of pixels between centers
+%  of adjacent colonies. If not specified, this value is determined using
+%  estimate_grid_spacing.
+%
+%  'orientationMethod' {'aspectRatio'} | 'periodic' - indicates which
+%  method to use to determine the angle of orientation of the grid (i.e.
+%  the angle between the grid alignment and the edge of the image). 
+%  See Algorithms.
+%
+%  'offsetStep' {3} - a scalar indicating the step size in the global
+%  fitting step. See Algorithms.
+%
+% AutoGrid accepts addition, advanced parameters, including:
+%  'midRows' {[0.4 0.6]} - a 2-element vector indicating the percentile
+%  range of pixel rows defining the center of the colony region.
+%
+%  'midCols' {[0.4 0.6]} - a 2-element vector indicating the percentile
+%  range of pixel columns defining the center of the colony region.
+%
+%  'midGridDims' {[8 8]} - a 2-element vector indicating the dimensions
+%  (rows x columns) of the sub-grid to fit to the center of the colony
+%  region. See Algorithms below.
+% 
+%  'minSpotSize' {10} - a scalar indicating the minimum size, in number of
+%  pixels, for a colony to be including the the initial fitting process.
+% 
+%  'gridThresholdMethod' {MaxMinMean()} - a Threshold object used to
+%  determine colonies for the initial fitting process.
+%
+%  'sizeStandard' {[1853 2765]} - a 2-element vector indicating the
+%  relative proportions of the height and width of a cropped image. Used
+%  only when 'orientationMethod' is set to 'aspectRatio'.
+%
+% Algorithms
+% Orientation method
+% There are two algorithms for determining the orientation of the plate
+% (i.e. the angle between the edge of the plate and the edge of the image).
+%  'aspectRatio' uses the ratio of the height and width of the plate, the
+% same ratio of the cropped image, and basic trigonometry to determine the
+% angle of orientation of the plate. This algorithm assumes the image has
+% been cropped to the outside of the plate (such as with crop_background -
+% see PlateLoader).
+%  'periodic' - see estimate_orientation. This algorithm does not require
+% specific cropping.
+% 
+% Fitting the grid
+% AutoGrid uses a brute-force searching method to determine the grid
+% position. After estimating the grid spacing and dimensions, it creates
+% the respective grid and then computes the fit of that grid over all valid
+% positions (i.e. the grid is entirely contained in the image). The search
+% space can be reduced with the parameter 'offsetStep', which indicates the
+% distance between evaluated positions. 
+% 
+% 
 classdef AutoGrid < Closure
    
     properties
@@ -12,6 +85,7 @@ classdef AutoGrid < Closure
         gridthresholdmethod;
         offsetstep;
         sizestandard;
+        
         dimensions;
         gridspacing;
         orientationmethod;

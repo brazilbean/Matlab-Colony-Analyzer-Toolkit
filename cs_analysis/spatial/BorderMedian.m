@@ -30,7 +30,8 @@ classdef BorderMedian < Closure
             med = nanmedian(colsizes(:));
             
             % Allocate borders
-            [border1 border2] = deal(ones(dims) * med);
+%             [border1, border2] = deal(ones(dims) * med);
+            [border1, border2] = deal(nan(dims));
 
             % Compute border medians
             d = this.depth;
@@ -45,8 +46,12 @@ classdef BorderMedian < Closure
             border2(:,1:d) = ...
                 repmat(fun(colsizes(d+1:end-d,1:d),1),[dims(1) 1]);
             
-            fit = (border1 + border2) - med;
- 
+            % Pick the border value in the intersecting regions
+            fit = border1;
+            iii = abs(border2-colsizes) < abs(border1-colsizes) ...
+                | isnan(border1);
+            fit(iii) = border2(iii);
+            fit(isnan(fit)) = med;
         end
         
     end

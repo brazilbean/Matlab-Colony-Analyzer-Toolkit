@@ -1,6 +1,65 @@
 %% Iterative Offset Grid - a grid-fitting algorithm
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, January 2014
+%
+% Syntax
+% IOG = IterativeOffsetGrid();
+% IOG = IterativeOffsetGrid('Name',Value,...);
+% grid = IOG(plate);
+% grid = IOG.fit_grid(plate);
+% grid = IterativeOffsetGrid(...).fit_grid(plate);
+%
+% Description
+% IOG = IterativeOffsetGrid() returns an IterativeOffsetGrid object with
+% the default parameters. This object can be used as a regular object with
+% the syntax GRID = IOG.fit_grid(PLATE) (where PLATE is the 2D image
+% matrix), or as a function handle with the syntax GRID = IOG(PLATE).
+%
+% IterativeOffsetGrid also accepts name-value arguments from the following
+% list (defaults in {}):
+%  'dimensions' - a 2-element vector indicating the number of rows and
+%  columns in the grid. If not specified, these values are determined using
+%  estimate_dimensions.
+%
+%  'gridSpacing' - a scalar indicating the number of pixels between centers
+%  of adjacent colonies. If not specified, this value is determined using
+%  estimate_grid_spacing.
+%
+%  'orientationMethod' {'aspectRatio'} | 'periodic' - indicates which
+%  method to use to determine the angle of orientation of the grid (i.e.
+%  the angle between the grid alignment and the edge of the image). See
+%  AutoGrid for details on these algorithms.
+% 
+% IterativeOffsetGrid accepts additional, advanced parameters as described
+% in AutoGrid.
+% 
+% Algorithm
+% The IterativeOffsetGrid algorithm follows these steps:
+% 1) The grid struct is initialized with the grid spacing
+% (estimate_grid_spacing) and grid dimensions (estimate_dimensions).
+%
+% 2) The initial placement of the grid is determined. This fits the
+% top-left portion of the grid to the center of the plate, then
+% extrapolates the remaining positions. This results in a grid that extends
+% beyond the edges of the plate on the right and lower sides. 
+%
+% 3) The grid is shifted up and to the left so that all grid positions fall
+% within the image matrix. The magnitude of the shift is a multiple of the
+% grid spacing, so the grid stays aligned with the colonies on the plate.
+%
+% 4) The grid is iteratively shifted by one row or column at a time until
+% the grid is aligned to the colonies. This is done by comparing the
+% space in the adjacent row/column to the space in the final row/column. If
+% the adjacent space better matches a profile of colonies than the final
+% row/column, the grid is shifted. Note that if the grid is positioned such
+% that it does not include the top row, then the bottom row of the grid
+% will extend beyond the colonies and cover background; thus, by comparing
+% these two rows, the correct position can be determined. 
+%
+% 5) After positioning the grid over the colonies, a final grid adjustment
+% is made using adjust_grid.
+%
+% See also: AutoGrid, estimate_dimensions, estimate_grid_spacing
 
 classdef IterativeOffsetGrid < AutoGrid
     methods

@@ -46,7 +46,7 @@ function scat = pseudoplate (plate, varargin)
     
     % Draw figure
     switch lower(params.style)
-        case 'imagesc'
+        case {'imagesc','heatmap'}
             imagescnan( reshape( plate, dims ), 'nancolor', ...
                 params.nancolor);
             
