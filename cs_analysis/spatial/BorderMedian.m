@@ -61,6 +61,8 @@ classdef BorderMedian < Closure
                 n = numel(colsizes);
                 dims = [8 12] .* sqrt( n / 96 );
                 colsizes = reshape(colsizes, dims);
+            else
+                dims = size(colsizes);
             end
             
             % Plate median
