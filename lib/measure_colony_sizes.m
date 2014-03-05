@@ -56,20 +56,16 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
     %% Load Plate
     if (ischar( plate_ ))
         % plate is file name
-        plate = params.plateloader.load(plate_);
+        % params.plateloader should be a function handle or a PlateLoader
+        % object.
+        plate = params.plateloader(plate_);
         
     else
-        % plate is matrix
+        % plate_ is a matrix
         plate = plate_;
         if (size(plate,3) > 1)
-            warning('Image matrix has 3 dimensions - this may break...');
+            warning('Image matrix has 3 dimensions - this may break...\n');
         end
-%         if (size(plate,3) > 1)
-%             % Plate is assumed to be in RGB format
-%             warning('Assumptions were made concerning the plate format');
-%             plate = nanmean(plate,3);
-%             plate = crop_background( plate );
-%         end
     end
     
     %% Determine grid
