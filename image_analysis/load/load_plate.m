@@ -17,7 +17,7 @@ function [plate, grid] = load_plate( filename, varargin )
             grid = load([filename '.info.mat']);
 
             if isfield(grid, 'info') && isfield(grid.info, 'PlateLoader')
-                plate = grid.info.PlateLoader.load(filename);
+                plate = grid.info.PlateLoader(filename);
                 return
             else
                 pl = PlateLoader();
