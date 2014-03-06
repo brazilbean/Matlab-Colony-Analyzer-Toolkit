@@ -1,6 +1,59 @@
 %% Offset Auto Grid - a grid-fitting algorithm
 % Matlab Colony Analyzer Toolkit
 % Gordon Bean, June 2013
+%
+% Syntax
+% OAG = OffsetAutoGrid();
+% OAG = OffsetAutoGrid('Name',Value,...);
+% grid = OAG(plate);
+% grid = OAG.fit_grid(plate);
+% grid = OffsetAutoGrid(...).fit_grid(plate);
+%
+% Description
+% OAG = OffsetAutoGrid() returns an OffsetAutoGrid object with
+% the default parameters. This object can be used as a regular object with
+% the syntax GRID = OAG.fit_grid(PLATE) (where PLATE is the 2D image
+% matrix), or as a function handle with the syntax GRID = OAG(PLATE).
+%
+% OffsetAutoGrid also accepts name-value arguments from the following
+% list (defaults in {}):
+%  'dimensions' - a 2-element vector indicating the number of rows and
+%  columns in the grid. If not specified, these values are determined using
+%  estimate_dimensions.
+%
+%  'gridSpacing' - a scalar indicating the number of pixels between centers
+%  of adjacent colonies. If not specified, this value is determined using
+%  estimate_grid_spacing.
+%
+%  'orientationMethod' {'aspectRatio'} | 'periodic' - indicates which
+%  method to use to determine the angle of orientation of the grid (i.e.
+%  the angle between the grid alignment and the edge of the image). See
+%  AutoGrid for details on these algorithms.
+% 
+% OffsetAutoGrid accepts additional, advanced parameters as described
+% in AutoGrid.
+% 
+% Algorithm
+% The OffsetAutoGrid algorithm follows these steps:
+% 1) The grid struct is initialized with the grid spacing
+% (estimate_grid_spacing) and grid dimensions (estimate_dimensions).
+%
+% 2) The initial placement of the grid is determined. This fits the
+% top-left portion of the grid to the center of the plate, then
+% extrapolates the remaining positions. This results in a grid that extends
+% beyond the edges of the plate on the right and lower sides. 
+%
+% 3) The grid is shifted up and to the left so that all grid positions fall
+% within the colony area. The magnitude of the shift is a multiple of the
+% grid spacing, so the grid stays aligned with the colonies on the plate.
+% The magnitude of the shift is determined by finding the last row and
+% column occupied by colonies. This is done by computing the correlation
+% between a 2D window at each position and a 2D gaussian surface.
+%
+% 4) After positioning the grid over the colonies, a final grid adjustment
+% is made using adjust_grid.
+%
+% See also: AutoGrid, estimate_dimensions, estimate_grid_spacing
 
 classdef OffsetAutoGrid < AutoGrid
     methods

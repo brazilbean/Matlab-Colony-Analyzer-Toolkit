@@ -3,6 +3,43 @@
 % Gordon Bean, December 2013
 %
 % Returns the orientation of the plate in RADIANS
+%
+% Syntax
+% theta = estimate_orientation( plate, it );
+% theta = estimate_orientation( plate, it, 'Name', Value, ... );
+%
+% Description
+% THETA = estimate_orientation( PLATE, IT ) returns the angle, in radians, 
+% between the rows of the colony grid and the edge of the image. PLATE is a
+% matrix representing the plate image. IT is the intensity threshold used
+% to determine colonies from the background. 
+%
+% THETA = estimate_orientation( PLATE, IT, 'Name', Value', ... ) accepts
+% additional name-value pair arguments from the following list (defaults in
+% <>):
+%  'box' - a 2D window in the matrix PLATE used to determine the
+%  orientation. If not specified, the algorithm uses a 2D window of width
+%  equal to 1/4th the width of the plate positioned at the center of the
+%  image. 
+% 
+%  'filter' < @(x) false(size(x)) > - a function handle used to remove
+%  colonies from consideration by the algorithm based on their size. The
+%  function handle should accept an array of colony sizes and return a
+%  binary vector of the same size.
+%
+% 'gridSpacing' < estimate_grid_spacing(PLATE) > - a scalar indicating the
+% distance, in pixels, between the centers of adjacent colonies. 
+% 
+% 'thresholdMethod' < MinFrequency() > - a ThresholdMethod object. If IT is
+% NaN, this object is used to determine the intensity threshold used by the
+% algorithm. 
+%
+% Algorithm
+% The algorithm searches for the value of theta that creates the best
+% periodicity of period 'gridSpacing' among the positions of the colonies.
+% In other words, what value of theta, when used to rotate the colony
+% positions, creates new colony positions that are at regular intervals and
+% in phase with the coordinate axes. 
 
 function theta = estimate_orientation( plate, it, varargin )
     params = default_param( varargin, ...
@@ -26,6 +63,10 @@ function theta = estimate_orientation( plate, it, varargin )
     ai = cent(~nix,1);
     bi = cent(~nix,2);
 
+    % Phi is the reference point for the colony positions [ai bi]. 
+    % Note that in the equation below, I use the inverse-rotation matrix,
+    % which is the standard rotation matrix with negative theta. Thus, x' =
+    % x*cos(theta) + y*sin(theta) and y' = -x*sin(theta) + y*cos(theta).
     align_fun = @(theta, phi) ...
         wi' * ( ...
         (1 - cos( 2*pi/w * ...

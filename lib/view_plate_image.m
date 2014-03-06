@@ -46,7 +46,7 @@ function params = view_plate_image( filename, varargin )
             plate = params.plateloader.load(filename);
         else
             if isfield(grid.info, 'PlateLoader')
-                plate = grid.info.PlateLoader.load(filename);
+                plate = grid.info.PlateLoader(filename);
             else
                 if (strcmpi(filename(end-3:end),'png'))
                     warning('Guessing plate is in raw format');
