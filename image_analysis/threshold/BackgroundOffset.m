@@ -70,8 +70,8 @@ classdef BackgroundOffset < ThresholdMethod
         end
         
         function this = calibrate(this, plate, grid)
-            mid = get_box(plate, mean(grid.r(:)), mean(grid.c(:)), ...
-                    grid.win * 5);
+            w = nanstd(grid.r(:));
+            mid = get_box(plate, mean(grid.r(:)), mean(grid.c(:)), w);
                 this.background_max = (min(mid(:)) + max(mid(:))) / 2;
         end
         
