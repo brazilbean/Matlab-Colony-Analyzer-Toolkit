@@ -68,8 +68,8 @@ function grid = adjust_grid( plate, grid, varargin )
         %% Plate-wide adjustment
         % Use coordinates across the full grid
         for iter = 1 : params.numfulladjusts
-            rrr = round( linspace( 1, grid.dims(1), 2*aw ) );
-            ccc = round( linspace( 1, grid.dims(2), 2*aw ) );
+            rrr = round( linspace( 1, grid.dims(1), 8 ) );
+            ccc = round( linspace( 1, grid.dims(2), 12 ) );
             [cfoo, rfoo] = meshgrid(ccc, rrr);
             inds = sub2ind(grid.dims, rfoo, cfoo);
 

@@ -13,37 +13,37 @@
 %  containing colony sizes if multiple size functions were provided).
 %  - GRID is the colony grid struct generated and used in the analysis.
 %
-% Parameters
+% Parameters (defaults in <>)
 % ------------------------------------------------------------------------
-% grid 
+% 'grid' <IterativeOffsetGrid()>
 %  - May be either a struct or a grid-fitting method
 %   If it is a struct, that struct will be used as the grid
 %   If it is a grid-fitting method, that method will be used to determine
 %    the grid.
-% plateLoader <PlateLoader()>
+% 'plateLoader' <PlateLoader()>
 %  - the PlateLoader object used to load the images. The value passed
 %  should be an instance of an object that extends PlateLoader.
-% threshold <background_offset()>
+% 'threshold' <BackgroundOffset()>
 %  - the ThresholdMethod object used to determine and apply the
 %  pixel-intensity threshold to the image. The value passed should be an
 %  instance of an object that extends ThresholdMethod.
-% metric <@threshold_bounded>
+% 'metric' <ColonyArea()>
 %  - a function handle to the method that quantifies the colony size. This
 %  method accepts the plate, grid, and position index (of the colony to be
 %  quantified) and returns a single value. 
 %  A cell array of function handles can be provided, in which case a cell
 %  array of matrices will be returned (each containing the values returned
 %  by each function handle). 
-% loadGridCoords <false>
+% 'loadGridCoords' <false>
 %  - if true, the grid coordinate information will be loaded from the
-%  existing .info.mat file before the image is processed.
+%  existing .info.mat file or from the provided grid struct before the 
+%  image is processed.
 %
 % All parameters are passed to auto_grid and manual_grid.
 %
-% See also OffsetAutoGrid, ManualGrid, ThresholdMethod, PlateLoader,
-% threshold_bounded
+% See also IterativeOffsetGrid, ManualGrid, ThresholdMethod, PlateLoader,
+% ColonyArea
 
-% (c) Gordon Bean, August 2013
 
 function [sizes, grid] = measure_colony_sizes( plate_, varargin )
 
@@ -98,7 +98,7 @@ function [sizes, grid] = measure_colony_sizes( plate_, varargin )
         
     else
         % Use the default grid method
-        grid = OffsetAutoGrid().fit_grid(plate);
+        grid = IterativeOffsetGrid().fit_grid(plate);
         
     end
     

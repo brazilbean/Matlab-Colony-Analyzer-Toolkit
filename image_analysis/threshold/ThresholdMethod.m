@@ -1,5 +1,11 @@
 %% Threshold Method Parent Class
 % Gordon Bean, March 2013
+%
+% ThresholdMethod is intended as an abstract class and is not useful for
+% instantiation. 
+%
+% See also BackgroundOffset, BackgroundOffsetRGB, MaxMinMean, MinFrequency,
+%  LocalFitted, HalfModeMax
 
 classdef ThresholdMethod
    

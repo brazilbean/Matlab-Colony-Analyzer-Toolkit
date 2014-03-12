@@ -16,6 +16,10 @@
 
 function scat = pseudoplate (plate, varargin)
 
+    if ~isnumeric(plate)
+        error('Colony size data must be numeric.');
+    end
+    
     params = get_params(varargin{:});
     params = default_param( params, 'colorbar', true );
     params = default_param( params, 'emap', false );
