@@ -16,8 +16,8 @@
 
 function scat = pseudoplate (plate, varargin)
 
-    if ~isnumeric(plate)
-        error('Colony size data must be numeric.');
+    if ~isnumeric(plate) && ~islogical(plate)
+        error('Colony size data must be numeric or logical.');
     end
     
     params = get_params(varargin{:});
