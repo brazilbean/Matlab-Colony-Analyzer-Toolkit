@@ -41,6 +41,6 @@ function [tiff, black, saturation, multipliers] = ...
     %% Convert NEF to TIFF
     [~,tmp] = systemf('dcraw -v -4 -D -T %s', filename);
     tmp = regexp(tmp,'data to (.+\.tiff)', 'tokens');
-    tiff = tmp{1};
+    tiff = tmp{1}{1};
     
 end
