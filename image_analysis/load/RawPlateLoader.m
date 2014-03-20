@@ -17,10 +17,14 @@
 % parameters. PL = RawPlateLoader('Name', Value, ...) accepts name-value 
 % pairs from following list (defaults in <>):
 %  'black' - a scalar indicating the lower bound pixel intensity for
-%  linearizing the data. If not specified, the min pixel intensity is used.
+%  linearizing the data. If not specified, RawPlateLoader will look for a
+%  .MAT file containing this information. If not found, RawPlateLoader will
+%  assume this value is the min pixel value of the image.
 %
 %  'saturation' - a scalar indicating the upper bound pixel intensity for
-%  linearizing the data. If not specified, the max pixel intensity is used.
+%  linearizing the data. If not specified, RawPlateLoader will look for a
+%  .MAT file containing this information. If not found, RawPlateLoader will
+%  assume this value is the max pixel value of the image.
 %
 %  'warnings' <true> - a logical indicating whether warnings will be
 %  displayed. 
@@ -60,17 +64,30 @@ classdef RawPlateLoader < PlateLoader
             img = double(imread(filename)); 
             
             % Linearize
+            if exist([filename '.mat'], 'file')
+                load([filename '.mat'], 'black', 'saturation');
+                has_specs = true;
+            end
+            
             if isnan(this.black)
-                if this.warnings
-                    warning('Assuming black level is min value'); 
+                if has_specs
+                    this.black = black;
+                else
+                    if this.warnings
+                        warning('Assuming black level is min value'); 
+                    end
+                    this.black = min(img(:));
                 end
-                this.black = min(img(:));
             end
             if isnan(this.saturation)
-                if this.warnings
-                    warning('Assuming saturation level is max value'); 
+                if has_specs
+                    this.saturation = saturation;
+                else
+                    if this.warnings
+                        warning('Assuming saturation level is max value'); 
+                    end
+                    this.saturation = max(img(:));
                 end
-                this.saturation = max(img(:));
             end
             
             lin_bayer = (img-this.black)/(this.saturation-this.black);
