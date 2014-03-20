@@ -67,6 +67,21 @@ classdef PlateLoader < Closure
         end
         
         function plate = load( this, filename )
+            if ~ischar( filename )
+                if iscell(filename)
+                    error(['Filename is not a string. ' ...
+                        'It looks like it is a cell array. ' ...
+                        'Did you mean to unwrap it?']);
+                else
+                    error('Filename is not a string. ');
+                end 
+            end
+            
+            img = this.load_image( filename );
+            plate = this.preprocess_image( img );
+        end
+        
+        function img = load_image(this, filename)
             % Read file
             img = imread(filename);
             if isa(img, 'uint16')
@@ -76,7 +91,9 @@ classdef PlateLoader < Closure
             
             % Average across channels
             img = mean(img(:,:,this.channel),3);
-            
+        end
+        
+        function plate = preprocess_image(this, img)
             % Crop background
             if isempty(this.crop)
                 plate = crop_background( img );
