@@ -146,7 +146,7 @@ classdef ManualGrid < Closure
 
                 % Verify grid
                 fig = figure('position', [2000 0 1000 700]);
-                movegui(fig, 'onscreen');
+                movegui(fig, 'center');
                 imagesc(plate)
                 colormap gray;
                 hold on; scatter( grid.c(:), grid.r(:), '.' ); hold off;
