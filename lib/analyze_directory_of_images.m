@@ -18,10 +18,11 @@
 % (c) Gordon Bean, August 2013
 
 function analyze_directory_of_images( imagedir, varargin )
-    params = get_params( varargin{:} );
-    params = default_param( params, 'extension', '.JPG');
-    params = default_param( params, 'verbose', false );
-    params = default_param( params, 'parallel', false );
+    params = default_param( varargin, ...
+        'extension', '.JPG', ...
+        'verbose', false, ...
+        'parallel', false, ...
+        'recordfailed', false );
     
     %% Get Image Files
     if ischar(imagedir)
@@ -52,6 +53,9 @@ function analyze_directory_of_images( imagedir, varargin )
             catch e
                 warning('\nImage %s failed: \n%s\n\n', ...
                     files{ff}, getReport(e));
+                if params.recordfailed
+                    systemf('touch %s.cs.txt', files{ff});
+                end
             end
         end
 
@@ -63,6 +67,9 @@ function analyze_directory_of_images( imagedir, varargin )
             catch e
                 warning('\nImage failed:\n %s\n  %s\n\n', ...
                     files{ff}, getReport(e) );
+                if params.recordfailed
+                    systemf('touch %s.cs.txt', files{ff});
+                end
             end
         end
     end

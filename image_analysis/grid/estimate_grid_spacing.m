@@ -7,11 +7,39 @@
 
 % Future improvements(?) under construction. Hard hats recommended. 
 
-function win = estimate_grid_spacing( plate )
+function win = estimate_grid_spacing( plate, varargin )
 
-    %% Get a robust, approximate estimate
-    win = robust_estimate( plate );
+    params = default_param( varargin, ...
+        'box', apply(fix(size(plate)/2), fix(size(plate,2)/8), ...
+            @(middle, win) get_box(plate, middle(1), middle(2), win)), ...
+        'filter', @(x) false(size(x)), ...
+        'threshold', MinFrequency());
     
+    if isa(params.threshold, 'FunctionHandle') ...
+            || isa(params.threshold, 'ThresholdMethod')
+        params.threshold = ...
+            params.threshold.determine_threshold(params.box);
+    end
+    
+    %% Get centroid and area of spots
+    [cent, area] = component_props(params.box > params.threshold);
+    
+    %% Filter really small spots (if filter function is provided)
+    cent(params.filter(area),:) = [];
+    
+    %% Compute distances
+    dd = sqrt(sum(bsxfun(@minus, permute(cent, [1 3 2]), ...
+        permute(cent, [3 1 2])).^2,3));
+    
+    %% Sort
+    dds = sort(dd);
+    
+    %% Find distance of neighbors
+    win = parzen_mode(in(dds(1:4,:)));
+    
+%     %% Get a robust, approximate estimate
+%     win = robust_estimate( plate );
+%     
     %% Fine tune
 %     [cpx, rpx] = meshgrid(size(plate,2) * linspace(0.3, 0.7, 20), ...
 %         size(plate,1) * linspace(0.3, 0.7, 20) );

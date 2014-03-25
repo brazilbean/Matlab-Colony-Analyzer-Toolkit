@@ -16,11 +16,11 @@
 
 function analyze_image( filename, varargin )
     params = default_param( varargin, ...
-    'outputExtension', '.cs.txt', ...
-    'binaryExtension', '.binary');
+        'outputExtension', '.cs.txt', ...
+        'binaryExtension', '.binary');
     
     %% Measure colony sizes
-    [cs grid] = measure_colony_sizes( filename, varargin{:} );
+    [cs, grid] = measure_colony_sizes( filename, varargin{:} );
     if (iscell(cs) && isempty(cs)) || (~iscell(cs) && all(in(isnan(cs))))
         % The user canceled the manual analysis.
         return;
@@ -48,7 +48,7 @@ function analyze_image( filename, varargin )
         tmpcs = cs(:);
     end
     
-    [rr cc] = ind2sub( grid.dims, 1 : prod(grid.dims) );
+    [rr, cc] = ind2sub( grid.dims, 1 : prod(grid.dims) );
     fid = fopen( [filename params.outputextension], 'wt');
     n = length(labels);
     fprintf(fid, ['row\tcolumn' repmat('\t%s',[1 n]) '\n'], labels{:});
