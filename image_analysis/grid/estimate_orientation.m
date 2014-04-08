@@ -47,17 +47,22 @@ function theta = estimate_orientation( plate, it, varargin )
             @(middle, win) get_box(plate, middle(1), middle(2), win)), ...
         'filter', @(x) false(size(x)), ...
         'gridSpacing', nan, ...
-        'thresholdMethod', MinFrequency());
+        'thresholdMethod', @disjoint_component_threshold);
     
     if isnan(it)
-        it = params.thresholdmethod.determine_threshold(params.box);
+        it = params.thresholdmethod(params.box);
+        if numel(it) == 1
+            binary = params.box > it;
+        else
+            binary = it;
+        end
     end
     if isnan(params.gridspacing)
         params.gridspacing = estimate_grid_spacing(plate);
     end
     
     % Get centroid and area of spots
-    [cent, area] = component_props(params.box > it);
+    [cent, area] = component_props(binary);
     
     % Find theta
     w = params.gridspacing;

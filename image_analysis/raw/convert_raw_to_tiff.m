@@ -31,7 +31,7 @@ function [tiff, black, saturation, multipliers] = ...
     
     if nargout > 1 || params.savespecs
         %% Get preliminary information
-        [~,tmp] = systemf('dcraw -v -w -T %s', filename);
+        tmp = systemf('dcraw -v -w -T %s', filename);
 
         %% Parse preliminary information
         foo1 = regexp(tmp, 'darkness (\d+), saturation (\d+)','tokens');
@@ -46,7 +46,7 @@ function [tiff, black, saturation, multipliers] = ...
     end
     
     %% Convert NEF to TIFF
-    [~,tmp] = systemf('dcraw -v -4 -D -T %s', filename);
+    tmp = systemf('dcraw -v -4 -D -T %s', filename);
     tmp = regexp(tmp,'data to (.+\.tiff)', 'tokens');
     tiff = tmp{1}{1};
     

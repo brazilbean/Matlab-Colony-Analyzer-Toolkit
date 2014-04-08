@@ -20,11 +20,15 @@ function off = measure_colony_offset( box, varargin )
     sit = (median(min(sbox)) + max(sbox(:)))/2;
     it = (it + sit) / 2;
     
-%     imgax(box>it);
-%     input('...');
-    
+    binary = box > it;
+%     cnix = mean(binary) < mean(mean(binary));
+%     rnix = mean(binary,2) < mean(mean(binary,2));
+%     
+%     binary(rnix,:) = 0;
+%     binary(:,cnix) = 0;
+
     %% Determine the colony location
-    [cents, areas] = component_props( box > it );
+    [cents, areas] = component_props( binary );
     cents = cents(areas>params.minspotsize,:);
     
     % Find the colony that is closest to the center

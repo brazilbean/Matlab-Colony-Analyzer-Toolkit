@@ -101,7 +101,8 @@ classdef AutoGrid < Closure
                 'midGridDims', [8 8], ...
                 'minSpotSize', 10, ...
                 ...'gridThresholdMethod', MinFrequency('offset', 5), ...
-                'gridThresholdMethod', MaxMinMean(), ...
+                ...'gridThresholdMethod', MaxMinMean(), ...
+                'gridThresholdMethod', @disjoint_component_threshold, ...
                 'offsetStep', 3, ...
                 'sizeStandard', [1853 2765], ...
                 'dimensions', nan, ...
@@ -189,11 +190,18 @@ classdef AutoGrid < Closure
                 range(size(plate,2)*this.midcols) );
 
             % Determine the threshold for identifying colonies
-            itmid = this.gridthresholdmethod.determine_threshold(mid);
+            itmid = this.gridthresholdmethod(mid);
+            if numel(itmid) == 1
+                % threshold method returned a threshold value
+                bmid = mid > itmid;
+            else
+                % threshold method returned a binary image
+                bmid = itmid;
+            end
 
             % Find colony locations
-            [inds, labs] = label_components( mid > itmid );
-            [cents, areas] = component_props( mid > itmid, inds );
+            [inds, labs] = label_components( bmid );
+            [cents, areas] = component_props( bmid, inds );
             
             % Ignore colonies on the border or that are too small
             lab_nix = unique([labs([1 end],:) labs(:,[1 end])']);
@@ -208,7 +216,7 @@ classdef AutoGrid < Closure
             c0 = cents(mi,1) + size(plate,2)*this.midcols(1);
 
             % Determine the initial grid positions
-            [cc0 rr0] = meshgrid((0:this.midgriddims(2)-1)*grid.win, ...
+            [cc0, rr0] = meshgrid((0:this.midgriddims(2)-1)*grid.win, ...
                 (0:this.midgriddims(1)-1)*grid.win);
 
             % Define the initial grid coordinates (top-left corner of grid)
@@ -282,7 +290,7 @@ classdef AutoGrid < Closure
             allplate = tmp_plate(allpos);
             clear tmp_plate
 
-            [row col] = ind2sub(size(tmpoff),argmax(in(mean(allplate,3))));
+            [row,col] = ind2sub(size(tmpoff),argmax(in(mean(allplate,3))));
 
             grid.r(:) = rtmp(:) + roff(row);
             grid.c(:) = ctmp(:) + coff_(col);

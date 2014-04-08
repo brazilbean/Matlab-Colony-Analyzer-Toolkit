@@ -145,7 +145,10 @@ classdef IterativeOffsetGrid < AutoGrid
 
             % Iterate on the rows
             grid = this.adjust_rows(plate, grid, refbox);
-            
+            grid = adjust_grid( plate, grid, ...
+                    'rowcoords', ris : 2 : grid.dims(1), ...
+                    'colcoords', cis : 2 : grid.dims(2) );
+                
             % Iterate on the columns
             grid = this.adjust_columns(plate, grid, refbox);
             
@@ -154,10 +157,11 @@ classdef IterativeOffsetGrid < AutoGrid
         function grid = adjust_rows(this, plate, grid, refbox)
             next_row = nan(grid.dims(2),2);
             w = fix((size(refbox,1)-1)/2);
+            fact = grid.info.factors.col;
             for ii = 1 : grid.dims(2)
                 try
-                    tmpbox = get_box ...
-                        (plate, grid.r(1,ii)-grid.win, grid.c(1,ii), w);
+                    tmpbox = get_box(plate, ...
+                        grid.r(1,ii)-fact(3), grid.c(1,ii)-fact(2), w);
                 catch e
                     tmpbox = nan(size(refbox));
                 end
@@ -177,7 +181,8 @@ classdef IterativeOffsetGrid < AutoGrid
             if nanmean(next_row(:,1)) > nanmean(next_row(:,2))
                 tmpr = grid.r;
                 grid.r(2:end,:) = tmpr(1:end-1,:);
-                grid.r(1,:) = grid.r(2,:)-grid.win;
+                grid.r(1,:) = grid.r(2,:)-fact(3);
+                grid.c(1,:) = grid.c(2,:)-fact(2);
                 grid = this.adjust_rows(plate, grid, refbox);
             end
         end
@@ -185,10 +190,11 @@ classdef IterativeOffsetGrid < AutoGrid
         function grid = adjust_columns(this, plate, grid, refbox)
             next_col = nan(grid.dims(1),2);
             w = fix((size(refbox,1)-1)/2);
+            fact = grid.info.factors.row;
             for ii = 1 : grid.dims(1)
                 try
-                    tmpbox = get_box ...
-                        (plate, grid.r(ii,1), grid.c(ii,1)-grid.win, w);
+                    tmpbox = get_box(plate, ...
+                        grid.r(ii,1)-fact(3), grid.c(ii,1)-fact(2), w);
                 catch e
                     tmpbox = nan(size(refbox));
                 end
@@ -208,7 +214,8 @@ classdef IterativeOffsetGrid < AutoGrid
             if nanmean(next_col(:,1)) > nanmean(next_col(:,2))
                 tmpc = grid.c;
                 grid.c(:,2:end) = tmpc(:,1:end-1);
-                grid.c(:,1) = grid.c(:,2)-grid.win;
+                grid.c(:,1) = grid.c(:,2)-fact(2);
+                grid.r(:,1) = grid.r(:,2)-fact(3);
                 grid = this.adjust_columns(plate, grid, refbox);
             end
     end

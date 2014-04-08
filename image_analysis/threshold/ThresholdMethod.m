@@ -7,7 +7,7 @@
 % See also BackgroundOffset, BackgroundOffsetRGB, MaxMinMean, MinFrequency,
 %  LocalFitted, HalfModeMax
 
-classdef ThresholdMethod
+classdef ThresholdMethod < Closure
    
     properties
         % None
@@ -15,7 +15,12 @@ classdef ThresholdMethod
     
     methods
         function this = ThresholdMethod()
+            this = this@Closure();
             % Initialize object 'this'
+        end
+        
+        function out = closure_method(this, varargin)
+            out = this.determine_threshold(varargin{:});
         end
         
         function box = get_colony_box(~, plate, grid, row, col)

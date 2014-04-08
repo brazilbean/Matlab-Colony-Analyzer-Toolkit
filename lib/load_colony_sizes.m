@@ -97,6 +97,11 @@ function [cs files] = load_colony_sizes( filename, varargin )
         % Determine number of columns
         fid = fopen(filename);
         header = fgetl(fid);
+        if header < 0
+            cs = nan;
+            return;
+        end
+        
         fields = textscan(header, '%s');
         fields = fields{1};
         ncols = length(fields);
