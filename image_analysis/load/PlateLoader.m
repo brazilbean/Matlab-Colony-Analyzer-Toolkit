@@ -28,6 +28,9 @@
 %  'autoRotate' <true> - if 'rotate90' is not specified and 'autoRotate' is
 %  true, the cropped image is rotated counterclockwise by 90 degrees.
 %
+%  'finalFunction' <@(x) x> - a function handle that is used to perform any
+%  final modifications to the image.
+%
 %  'interp' - a scalar indicating the number of times to downsample the
 %  resolution of the image (using interp2). You probably won't use this.
 
@@ -38,6 +41,7 @@ classdef PlateLoader < Closure
         autorotate
         crop
         rotate90
+        finalfunction
         interp
     end
     
@@ -49,6 +53,7 @@ classdef PlateLoader < Closure
                 'allowrotate', true, ...
                 'crop', [], ...
                 'rotate90', 0, ...
+                'finalfunction', @(x) x, ...
                 'interp', 0);
             
             for prop = properties('PlateLoader')'
@@ -118,6 +123,8 @@ classdef PlateLoader < Closure
                 plate = interp2(plate, this.interp);
             end
             
+            % Final Function
+            plate = params.finalfunction(plate);
         end
     end
 end
