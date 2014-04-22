@@ -43,7 +43,7 @@ function params = view_plate_image( filename, varargin )
         
         % Load plate
         if isfield(params, 'plateloader')
-            plate = params.plateloader.load(filename);
+            plate = params.plateloader(filename);
         else
             if isfield(grid.info, 'PlateLoader')
                 plate = grid.info.PlateLoader(filename);

@@ -16,6 +16,8 @@
 % PL = PlateLoader() returns a PlateLoader object with the default
 % parameters. PL = PlateLoader('Name', Value, ...) accepts name-value pairs
 % from following list (defaults in <>):
+%  'imreadArgs' <{}> - a list of arguments to be passed to imread.
+%
 %  'channel' <1:3> - indicates which of the RBG channels to process.
 %
 %  'crop' - a 4-element vecor indicating the region to be cropped: 
@@ -124,7 +126,7 @@ classdef PlateLoader < Closure
             end
             
             % Final Function
-            plate = params.finalfunction(plate);
+            plate = this.finalfunction(plate);
         end
     end
 end

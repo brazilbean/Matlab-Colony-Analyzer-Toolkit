@@ -64,6 +64,7 @@ classdef RawPlateLoader < PlateLoader
             img = double(imread(filename)); 
             
             % Linearize
+            has_specs = false;
             if exist([filename '.mat'], 'file')
                 load([filename '.mat'], 'black', 'saturation');
                 has_specs = true;
