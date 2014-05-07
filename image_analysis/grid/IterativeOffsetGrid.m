@@ -146,8 +146,8 @@ classdef IterativeOffsetGrid < AutoGrid
             % Iterate on the rows
             grid = this.adjust_rows(plate, grid, refbox);
             grid = adjust_grid( plate, grid, ...
-                    'rowcoords', ris : 2 : grid.dims(1), ...
-                    'colcoords', cis : 2 : grid.dims(2) );
+                    'rowcoords', 1 : 2 : grid.dims(1), ...
+                    'colcoords', 1 : 2 : grid.dims(2) );
                 
             % Iterate on the columns
             grid = this.adjust_columns(plate, grid, refbox);
