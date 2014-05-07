@@ -111,7 +111,7 @@ function params = view_plate_image( filename, varargin )
 
         % Finish
         if (params.interactive)
-            disp('Select the colonies, then press any key to continue\n');
+            disp('Select the colonies, then press any key to continue');
             figure(fig);
             waitfor( fig );
             
