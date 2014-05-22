@@ -20,8 +20,8 @@
 %
 %  'channel' <1:3> - indicates which of the RBG channels to process.
 %
-%  'crop' - a 4-element vecor indicating the region to be cropped: 
-%    [row_min row_max col_min col_max].
+%  'crop' <'auto'>- a 4-element vecor indicating the region to be cropped: 
+%    [row_min row_max col_min col_max]. If 'auto', crop_background is used.
 %
 %  'rotate90' - an integer 'k' indicating the k*90 degree rotation to apply
 %  to the cropped image. Positive values rotate counterclockwise, negative
@@ -53,7 +53,7 @@ classdef PlateLoader < Closure
                 'channel', 1:3, ...
                 'autorotate', true, ...
                 'allowrotate', true, ...
-                'crop', [], ...
+                'crop', 'auto', ...
                 'rotate90', 0, ...
                 'finalfunction', @(x) x, ...
                 'interp', 0);
@@ -102,8 +102,11 @@ classdef PlateLoader < Closure
         
         function plate = preprocess_image(this, img)
             % Crop background
-            if isempty(this.crop)
+            if ischar(this.crop) && strcmpi(this.crop,'auto')
                 plate = crop_background( img );
+            elseif isempty(this.crop) 
+                % no crop
+                plate = img;
             else
                 plate = img ...
                     (this.crop(1):this.crop(2), this.crop(3):this.crop(4));
