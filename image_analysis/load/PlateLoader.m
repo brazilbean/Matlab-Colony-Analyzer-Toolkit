@@ -102,8 +102,17 @@ classdef PlateLoader < Closure
         
         function plate = preprocess_image(this, img)
             % Crop background
-            if ischar(this.crop) && strcmpi(this.crop,'auto')
-                plate = crop_background( img );
+            if ischar(this.crop) 
+                if strcmpi(this.crop,'auto')
+                    plate = crop_background( img );
+                elseif strcmpi(this.crop, 'manual')
+                    tmp = interactive_figure ...
+                        ( @(y) imagesc(img), 2);
+                    tcrop = round([tmp(1,2) tmp(2,2) tmp(1,1) tmp(2,1)]);
+                    plate = img(tcrop(1):tcrop(2), tcrop(3):tcrop(4));
+                else
+                    error('Unsupported option: %s', this.crop);
+                end
             elseif isempty(this.crop) 
                 % no crop
                 plate = img;

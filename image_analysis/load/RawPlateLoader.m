@@ -68,6 +68,13 @@ classdef RawPlateLoader < PlateLoader
             if exist([filename '.mat'], 'file')
                 load([filename '.mat'], 'black', 'saturation');
                 has_specs = true;
+            elseif exist([filename '.txt'], 'file')
+                fid = fopen([filename '.txt']);
+                tmp = textscan(fgetl(fid), '%f');
+                fclose(fid);
+                
+                this.black = tmp{1}(1);
+                this.saturation = tmp{1}(2);    
             end
             
             if isnan(this.black)

@@ -61,6 +61,7 @@ classdef SpatialMedian < Closure
         windowfun
         window
         acceptzeros
+        blockfunparams
     end
     
     methods
@@ -72,6 +73,7 @@ classdef SpatialMedian < Closure
                 'windowFun', @nanmedian, ...
                 'window', nan, ...
                 'acceptZeros', false, ...
+                'blockFunParams', {}, ...
                 varargin{:});
         end
         
@@ -103,7 +105,8 @@ classdef SpatialMedian < Closure
                 colsizes = reshape(colsizes, dims);
             end
             
-            fit = blockfun( colsizes, this.window, this.windowfun );
+            fit = blockfun( colsizes, this.window, this.windowfun, ...
+                this.blockfunparams{:});
             
             % Correct for zeros in the background
             % Assumes that all values are positive.

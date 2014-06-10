@@ -41,7 +41,7 @@ function out = apply_correction( data, varargin )
                 tmp = correction(reshape(out(:,ii), dims));
 
                 % Correct plate
-                out(:,ii) = fil(params.function(out(:,ii),tmp(:)), @isinf);
+                out(:,ii) = params.function(out(:,ii),tmp(:));
             end
         else
             for ii = 1 : size(out,2)
@@ -49,7 +49,7 @@ function out = apply_correction( data, varargin )
                 tmp = correction(reshape(out(:,ii), dims));
 
                 % Correct plate
-                out(:,ii) = fil(params.function(out(:,ii),tmp(:)), @isinf);
+                out(:,ii) = params.function(out(:,ii),tmp(:));
             end
         end
     end
