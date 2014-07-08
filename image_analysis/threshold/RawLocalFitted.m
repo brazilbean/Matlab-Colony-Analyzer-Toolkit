@@ -26,17 +26,22 @@
 % threshold to a window surrounding each colony. 
 %
 % Parameters
+%  'numdevs' <3> scalar - the number of standard deviations above the lower
+%  pixel intensity mode to call the threshold.
+%  'windowscale' <1> scalar - scales the window around each colony to
+%  define the "local" region. For sparse formats (i.e. 96, maybe 384), set
+%  this value to less than 1 to improve the local fit. 
 %
 % Algorithm
 % RawLocalFitted determines the pixel intensity threshold of a small
-% region (i.e. BOX) by hand-waving pseudo-science. There is no man behind
-% the curtain.
+% region (i.e. BOX) using the same approach as LocalFitted.
 %
-% See also ThresholdMethod
+% See also ThresholdMethod, LocalFitted
 
 classdef RawLocalFitted < ThresholdMethod
     properties
         numdevs
+        windowscale
     end
     
     methods
@@ -44,7 +49,15 @@ classdef RawLocalFitted < ThresholdMethod
             this = this@ThresholdMethod();
             this = default_param( this, ...
                 'numdevs', 3, ...
+                'windowscale', 1, ...
                 varargin{:});
+        end
+        
+        function box = get_colony_box(this, plate, grid, row, col)
+            % Default is to use grid.win.
+            box = get_box(plate, ...
+                grid.r(row, col), grid.c(row, col), ...
+                grid.win*this.windowscale);
         end
         
         function it = determine_threshold(this, box)
